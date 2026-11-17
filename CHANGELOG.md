@@ -1,5 +1,28 @@
 # Changelog — Clinic AI Assistant
 
+## v1.2.0 — 18 Nov 2026 — one repo, frontend/ + backend/ split (user decision)
+
+- **Same repo, two halves:** `frontend/` (static dashboard) + `backend/`
+  (FastAPI) in `clinic-ai-assistant`. No second repo, no rebuild — the
+  v1.1.1 code moved, nothing re-implemented.
+- **Frontend:** `backend/app/static/index.html` → `frontend/index.html`;
+  new `frontend/config.js` holds the ONE backend URL
+  (`window.__CLINIC_API_BASE__`, default `''` same-origin); every `fetch()`
+  in the dashboard now goes through that base, including the two direct
+  calls (`/health`, `/api/open-decisions`) that used to bypass it.
+  `frontend/vercel.json` is static-site only; `frontend/README.md` documents
+  the Vercel deploy (Root Directory = `frontend`).
+- **Backend:** dashboard serving removed from `main.py` — `/` now returns a
+  JSON pointer to the frontend; `/health` and all `/api/*` routes unchanged.
+  CORS is now configurable: new `FRONTEND_ORIGIN` env var (comma-separated,
+  added to `render.yaml` + `backend/.env.example`); empty means `*` in
+  DEMO_MODE only, and no cross-origin access in prod. `.env.example` moved
+  to `backend/.env.example`; `docs/API.md` moved to `backend/docs/API.md`.
+- **Removed:** Vercel Python deploy of the backend — `api/index.py`, root
+  `vercel.json`, `.vercelignore` deleted. Backend deploys on Render only
+  (Blueprint `render.yaml` at repo root); frontend deploys on Vercel only.
+  Root README rewritten for the two-folder layout and the two deploys.
+
 ## v1.1.0 — 18 Nov 2026 — initial build
 
 - FastAPI app "Clinic AI Assistant" (PRD v1.1): CORS open for local dev,

@@ -5,22 +5,19 @@ true AND env SEED_DEMO=1 (default off in code — set it explicitly to
 seed on boot). Simulated mode needs zero credentials.
 """
 import os
-from pathlib import Path
 
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 
 from .config import settings
 from .database import SessionLocal, init_db
 from .routers import admin, auth, booking, clinics, numbers_router, payments_router, voice
 
 APP_VERSION = "1.1.0"
-BASE_DIR = Path(__file__).resolve().parent
-STATIC_DIR = BASE_DIR / "static"
+# The dashboard no longer lives here: it is the static site in frontend/
+# (same repo). / serves a JSON pointer to it; /health and /api/* are the API.
 
 OPEN_DECISIONS = [
     {"id": "D1", "decision": "Pilot clinic kaunsi hai? Doctor ne haan bola hai?",
@@ -62,10 +59,19 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Clinic AI Assistant", version=APP_VERSION, lifespan=lifespan)
 
-# CORS open for local dev only — tighten allow_origins before any public deploy.
+# CORS — the dashboard is a separate static site (Vercel), so the browser
+# calls this API cross-origin. FRONTEND_ORIGIN (comma-separated) is the
+# allow-list; in DEMO_MODE with no value set, '*' keeps local dev working;
+# in prod with no value set, no cross-origin calls are allowed.
+if settings.frontend_origin:
+    _allow_origins = [o.strip() for o in settings.frontend_origin.split(",") if o.strip()]
+elif settings.demo_mode:
+    _allow_origins = ["*"]
+else:
+    _allow_origins = []
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], allow_credentials=True,
+    allow_origins=_allow_origins, allow_credentials=True,
     allow_methods=["*"], allow_headers=["*"],
 )
 
@@ -91,13 +97,6 @@ def open_decisions():
 
 
 @app.get("/")
-def dashboard():
-    index = STATIC_DIR / "index.html"
-    if index.exists():
-        return FileResponse(index)
+def root():
     return {"app": "Clinic AI Assistant", "version": APP_VERSION,
-            "message": "Dashboard abhi build ho raha hai — /health aur /docs dekhein"}
-
-
-if STATIC_DIR.exists():
-    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+            "message": "Backend API — dashboard is the static site in frontend/ (Vercel). See /health and /docs."}

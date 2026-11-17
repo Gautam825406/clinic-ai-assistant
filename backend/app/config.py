@@ -28,6 +28,10 @@ class Settings:
     whatsapp_api_token: str = _env("WHATSAPP_API_TOKEN", "")
     whatsapp_phone_number_id: str = _env("WHATSAPP_PHONE_NUMBER_ID", "")
     payment_gateway: str = _env("PAYMENT_GATEWAY", "cashfree")
+    # CORS: comma-separated origins allowed to call the API (the Vercel
+    # frontend URL). Empty = '*' in DEMO_MODE only; in prod with no value,
+    # no cross-origin calls are allowed.
+    frontend_origin: str = _env("FRONTEND_ORIGIN", "")
     cashfree_app_id: str = _env("CASHFREE_APP_ID", "")
     cashfree_secret_key: str = _env("CASHFREE_SECRET_KEY", "")
     cashfree_env: str = _env("CASHFREE_ENV", "SANDBOX")

@@ -33,7 +33,7 @@
   tha?"); summary shows Reason line + new/follow-up flag.
 - **Own number per clinic (v1.1+):** every clinic registers and OTP-verifies
   its own phone/WhatsApp number in the dashboard — never one shared number.
-- **Dashboard:** single-file mobile-first UI (`backend/app/static/index.html`)
+- **Dashboard:** single-file mobile-first UI (`frontend/index.html`, backend URL in `frontend/config.js`)
   — Today list (Aaya / Nahi aaya), manual booking, call log, callbacks,
   FR-17 config, numbers + OTP, simulated demo call, platform admin view.
 - **Multi-tenant:** `tenant_id` on every table; every query filters by it;
@@ -52,10 +52,18 @@
 ## Run locally
 
 ```bash
-cp .env.example .env        # fill ONLY what you have; never commit .env
+cp backend/.env.example .env   # fill ONLY what you have; never commit .env
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
-.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --app-dir backend
-# open http://localhost:8000  (dashboard)  •  /docs (API)  •  /health
+
+# Terminal 1 — backend API (port 8000):
+DEMO_MODE=true SEED_DEMO=1 .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --app-dir backend
+# /health  •  /docs (API)  •  /api/open-decisions
+
+# Terminal 2 — frontend dashboard (port 8080):
+# in frontend/config.js set: window.__CLINIC_API_BASE__ = 'http://localhost:8000'
+# (do NOT commit that line — keep the committed value '' for same-origin)
+python3 -m http.server 8080 --directory frontend
+# open http://localhost:8080
 ```
 
 With zero credentials the app runs in **simulated mode**: simulated
@@ -92,12 +100,13 @@ opt-in so a production boot never creates demo data).
 
 ## .env setup
 
-Copy `.env.example` → `.env`. Everything secret comes from the environment,
+Copy `backend/.env.example` → `.env`. Everything secret comes from the environment,
 never from code:
 
 | Group | Vars | Notes |
 |---|---|---|
 | Core | `APP_ENV`, `DEMO_MODE`, `DATABASE_URL`, `REDIS_URL` | SQLite file locally; Postgres (Neon) in prod |
+| CORS | `FRONTEND_ORIGIN` | Vercel frontend URL(s); empty = `*` in DEMO_MODE only, set it in prod |
 | LLM / STT | `GROQ_API_KEY`, `GROQ_STT_MODEL`, `GROQ_LLM_MODEL` | Optional locally — simulated when empty |
 | Telephony | `TELEPHONY_PROVIDER`, `TELEPHONY_API_KEY`, `TELEPHONY_API_SECRET`, `TELEPHONY_NUMBER` | Pick ONE vendor after a trial (D2) |
 | WhatsApp | `WHATSAPP_PROVIDER`, `WHATSAPP_API_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID` | Via a BSP; simulated outbox when empty |
@@ -117,7 +126,7 @@ never from code:
 
 ## API
 
-Full reference: [`docs/API.md`](docs/API.md). Highlights:
+Full reference: [`backend/docs/API.md`](backend/docs/API.md). Highlights:
 
 - Auth: `POST /auth/signup` (returns `api_token` once), `POST /auth/login`,
   `POST /auth/rotate-token`. All other clinic routes need `X-API-Key`.
@@ -133,7 +142,7 @@ Full reference: [`docs/API.md`](docs/API.md). Highlights:
 - Numbers: `POST /numbers/request-otp|verify-otp`, `GET /numbers/me`.
 - Admin (platform admin only): `GET /admin/tenants|stats|failures`,
   `GET /admin/digest/{tenant_id}`.
-- Meta: `GET /health`, `GET /api/open-decisions`, `GET /` (dashboard).
+- Meta: `GET /health`, `GET /api/open-decisions`, `GET /` (API pointer — the dashboard is the frontend).
 
 ## Tests
 
@@ -176,21 +185,32 @@ not the price on hope.
 - [ ] Cashfree app (App ID + Secret Key) + webhook secret
 - [ ] Postgres (Neon) + Redis URLs for production
 
-## Repo layout
+## Repo layout — one repo, two halves, two deploys
 
 ```
-backend/app/
-  main.py  config.py  database.py  models.py  security.py  schemas.py
-  date_parser.py  slot_engine.py  safety.py  dialogue.py  telephony.py
-  stt_tts.py  whatsapp.py  payments.py  numbers.py  notifications.py
-  specialty_templates.py  seed.py
-  routers/  auth.py  clinics.py  booking.py  voice.py
-            payments_router.py  numbers_router.py  admin.py  common.py
-  static/index.html        # dashboard (single file, no build step)
-backend/tests/  test_templates.py  test_api.py  conftest.py
-scripts/demo_call.py
-docs/API.md  CHANGELOG.md  docker-compose.yml  Dockerfile  requirements.txt
+frontend/                 # dashboard (static site, no build step)
+  index.html              # whole dashboard (Hinglish UI)
+  config.js               # THE backend URL — window.__CLINIC_API_BASE__
+  vercel.json             # static-site deploy config
+  README.md               # run + Vercel deploy steps
+  .env.example            # documents the backend URL value only
+backend/                  # FastAPI backend
+  app/                    # main.py, config.py, database.py, models.py, ...
+  tests/                  # pytest suite
+  docs/API.md             # full API reference
+  README.md               # run + Render deploy steps
+  .env.example            # backend env vars (all values empty)
+requirements.txt  render.yaml  Dockerfile  docker-compose.yml
+evals/  scripts/demo_call.py  CHANGELOG.md  CONTRACT.md
 ```
+
+| Half | Deploy from this repo | How |
+|---|---|---|
+| Frontend | **Vercel**, Root Directory = `frontend`, static (no build) | Set the backend URL in `frontend/config.js` first |
+| Backend | **Render Blueprint**, `render.yaml` at repo root | Set `FRONTEND_ORIGIN` + real keys in Render → Environment |
+
+The old Vercel Python deploy of the backend (`api/index.py` + root
+`vercel.json`) was removed in v1.2.0 — backend deploys on Render only.
 
 ## Rules (non-negotiable)
 
@@ -201,14 +221,17 @@ docs/API.md  CHANGELOG.md  docker-compose.yml  Dockerfile  requirements.txt
 
 ## Live deploy (status 18 Nov 2026)
 
-**GitHub repo `Gautam825406/clinic-ai-assistant` — NOT yet created (blocked, see below).**
-Once it exists, the intended live setup is:
+**GitHub repo `Gautam825406/clinic-ai-assistant` — exists, v1.1.1 pushed
+(commit `249d043d`).** This v1.2.0 restructure (frontend/ + backend/ in the
+one repo) is committed locally and ready to push — not live yet.
 - **GitHub:** https://github.com/Gautam825406/clinic-ai-assistant
-- **Backend + dashboard:** Render free tier from `render.yaml` (or Vercel via `vercel.json` + `api/index.py`) — the dashboard is served by the FastAPI app itself at `/`, so one URL covers both.
-- **Database:** Neon Postgres free tier (same pattern as RegLens / IntervIQ) — set `DATABASE_URL` in the host env vars. Render free tier sleeps when idle (first request 50s+); SQLite is local-dev only.
-
-**Blocker (exact):** creating the GitHub repo from this machine fails — the GitHub integration returns `403 Resource not accessible by integration` on `create_repository`, and no local git credentials are stored. One-time unblock, any of:
-1. The user creates an **empty public repo named `clinic-ai-assistant`** at https://github.com/new (no README/license/.gitignore — the push brings its own README), or
-2. The parent agent creates it in the browser, then the snapshot push (`github push-files`, manifest prepared in the repo) uploads this code, after which Render (Blueprint from `render.yaml`) and Vercel (`create_git_project`) deploy from the repo.
+- **Backend:** Render free tier, Blueprint from `render.yaml` (repo root) —
+  web service + free Postgres (`DATABASE_URL` wired automatically).
+- **Frontend:** Vercel static site, same repo, Root Directory = `frontend`
+  (see `frontend/README.md`). Set the backend URL in `frontend/config.js`
+  first, and `FRONTEND_ORIGIN` in Render → Environment.
+- **Database:** Neon Postgres free tier (same pattern as RegLens / IntervIQ)
+  — set `DATABASE_URL` in the host env vars. Render free tier sleeps when
+  idle (first request 50s+); SQLite is local-dev only.
 
 **Live vs simulated (until real credentials are added):** the live site will run in simulated mode — demo booking, payment link, webhook and WhatsApp outbox all work end-to-end, but no real phone call, WhatsApp message or rupee moves. Still needed from the user (env vars only, never in chat/git): telephony vendor key (Exotel/Plivo/Twilio), WhatsApp BSP token, Groq key, Cashfree App ID + Secret (production only when ready), Neon Postgres URL.

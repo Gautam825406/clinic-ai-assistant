@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clinic AI Assistant — Dashboard</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f6f8f7;color:#16211b}
+  header{background:#0b5d3b;color:#fff;padding:14px 16px;position:sticky;top:0;z-index:10}
+  header h1{margin:0;font-size:19px}
+  header p{margin:2px 0 0;font-size:12px;opacity:.85}
+  main{max-width:860px;margin:0 auto;padding:12px 12px 40px}
+  .card{background:#fff;border:1px solid #dfe7e2;border-radius:12px;padding:14px;margin:10px 0}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  label{display:block;font-size:13px;font-weight:600;margin:10px 0 4px}
+  input,select,textarea{width:100%;padding:10px;border:1px solid #cbd5d1;border-radius:8px;font-size:15px;background:#fff}
+  button{background:#0b5d3b;color:#fff;border:0;border-radius:8px;padding:10px 16px;font-size:15px;cursor:pointer}
+  button.secondary{background:#eef2f0;color:#0b5d3b;border:1px solid #cbd5d1}
+  button.danger{background:#b3261e}
+  button:disabled{opacity:.55}
+  .tabs{display:flex;gap:6px;overflow-x:auto;padding:4px 0}
+  .tabs button{background:#eef2f0;color:#0b5d3b;padding:8px 12px;white-space:nowrap}
+  .tabs button.active{background:#0b5d3b;color:#fff}
+  .tab{display:none}.tab.active{display:block}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:8px 6px;border-bottom:1px solid #eef2f0;text-align:left;vertical-align:top}
+  .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:12px;background:#e6f4ec;color:#0b5d3b}
+  .badge.warn{background:#fff3cd;color:#7a5b00}
+  .badge.bad{background:#fde8e8;color:#b3261e}
+  .muted{color:#5b6b62;font-size:13px}
+  .msg{font-size:13px;margin-top:8px;white-space:pre-wrap}
+  .msg.err{color:#b3261e}.msg.ok{color:#0b5d3b}
+  .transcript{background:#f2f6f3;border-radius:8px;padding:10px;font-size:14px;white-space:pre-wrap;max-height:320px;overflow:auto}
+  .keybox{font-size:12px;word-break:break-all;background:#f2f6f3;padding:8px;border-radius:8px}
+  @media (max-width:560px){table{font-size:13px}header h1{font-size:17px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Clinic AI Assistant</h1>
+  <p>Clinic ki calls, booking aur daily list — ek jagah</p>
+</header>
+<main>
+  <div class="card">
+    <label for="apikey">API Key (login)</label>
+    <div class="row">
+      <input id="apikey" type="password" placeholder="cav_... paste karein" style="flex:1;min-width:200px">
+      <button onclick="saveKey()">Save karein</button>
+      <button class="secondary" onclick="logout()">Logout</button>
+    </div>
+    <p class="muted">API key sirf is browser ki localStorage mein save hoti hai, server par nahi.</p>
+    <div id="who" class="muted"></div>
+    <div id="health" class="muted"></div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button data-tab="today" class="active" onclick="showTab('today')">Aaj ki list</button>
+    <button data-tab="book" onclick="showTab('book')">Book karein</button>
+    <button data-tab="calls" onclick="showTab('calls')">Calls</button>
+    <button data-tab="callbacks" onclick="showTab('callbacks')">Callbacks</button>
+    <button data-tab="config" onclick="showTab('config')">Config</button>
+    <button data-tab="numbers" onclick="showTab('numbers')">Numbers</button>
+    <button data-tab="demo" onclick="showTab('demo')">Demo Call</button>
+    <button data-tab="admin" onclick="showTab('admin')">Admin</button>
+  </div>
+
+  <section id="tab-today" class="tab active">
+    <div class="card">
+      <div class="row"><h2 style="margin:0;font-size:17px">Aaj ki list</h2>
+        <input id="todayDate" type="date" style="width:auto">
+        <button onclick="loadToday()">Dekhein</button></div>
+      <div id="stats" class="muted"></div>
+      <div id="todayList"></div>
+      <div id="todayMsg" class="msg"></div>
+    </div>
+  </section>
+
+  <section id="tab-book" class="tab">
+    <div class="card">
+      <h2 style="margin:0 0 6px;font-size:17px">Manual booking (reception)</h2>
+      <label>Doctor</label><select id="bookDoctor"></select>
+      <label>Appointment type</label><select id="bookType"><option value="">(default duration)</option></select>
+      <label>Date</label><input id="bookDate" type="date">
+      <label>Time slot</label><select id="bookSlot"></select>
+      <div class="row"><button onclick="loadSlots()">Slots dekhein</button></div>
+      <label>Patient ka naam</label><input id="bookName" placeholder="Jaise: Rahul Verma">
+      <label>Patient ka mobile</label><input id="bookMobile" placeholder="10 digit mobile">
+      <label>Reason (chhota, max 8 words)</label><input id="bookReason" placeholder="Jaise: bukhaar, 2 din se">
+      <div class="row" style="margin-top:12px"><button onclick="bookNow()">Booking confirm karein</button></div>
+      <div id="bookMsg" class="msg"></div>
+    </div>
+  </section>
+
+  <section id="tab-calls" class="tab">
+    <div class="card"><h2 style="margin:0;font-size:17px">Call log</h2>
+      <div class="row"><button onclick="loadCalls()">Refresh karein</button></div>
+      <div id="callsList"></div><div id="callsMsg" class="msg"></div></div>
+  </section>
+
+  <section id="tab-callbacks" class="tab">
+    <div class="card"><h2 style="margin:0;font-size:17px">Callback queue</h2>
+      <div class="row"><button onclick="loadCallbacks()">Refresh karein</button></div>
+      <div id="callbacksList"></div><div id="callbacksMsg" class="msg"></div></div>
+  </section>
+
+  <section id="tab-config" class="tab">
+    <div class="card"><h2 style="margin:0;font-size:17px">Clinic config (FR-17)</h2>
+      <p class="muted">Timings, fees, greeting, WhatsApp numbers aur booking amount — bina code ke yahin se badlein.</p>
+      <label>Clinic ka naam</label><input id="cfgName">
+      <label>Fees text</label><input id="cfgFees" placeholder="Jaise: Consultation Rs. 500 (range, confirm at reception)">
+      <label>Greeting text</label><textarea id="cfgGreeting" rows="2"></textarea>
+      <label>WhatsApp — Doctor</label><input id="cfgWaDoc" placeholder="+91-...">
+      <label>WhatsApp — Reception</label><input id="cfgWaRec" placeholder="+91-...">
+      <label>Opening time</label><input id="cfgOpen" placeholder="09:00">
+      <label>Closing time</label><input id="cfgClose" placeholder="21:00">
+      <label>Booking amount ON/OFF</label>
+      <select id="cfgAmtOn"><option value="true">ON</option><option value="false">OFF</option></select>
+      <label>Booking amount (Rs.)</label><input id="cfgAmt" type="number" min="0" max="200" placeholder="100">
+      <label>Timely-cancel cut-off (ghante)</label><input id="cfgCutoff" type="number" min="0" placeholder="4">
+      <label>Late-cancel policy</label>
+      <select id="cfgLate"><option value="forfeit">Forfeit</option><option value="partial_refund">Partial refund</option><option value="full_refund">Full refund</option></select>
+      <div class="row" style="margin-top:12px"><button onclick="saveConfig()">Save karein</button>
+      <button class="secondary" onclick="loadConfig()">Phir se load karein</button></div>
+      <div id="cfgMsg" class="msg"></div>
+      <h3 style="font-size:15px;margin:18px 0 4px">Doctor jodein</h3>
+      <label>Doctor ka naam</label><input id="newDocName" placeholder="Jaise: Dr. Sharma">
+      <label>Speciality</label><input id="newDocSpec" placeholder="General / GP">
+      <label>Slot (minutes)</label><input id="newDocSlot" type="number" value="15">
+      <div class="row" style="margin-top:8px"><button onclick="addDoctor()">Doctor jodein</button></div>
+      <div id="docMsg" class="msg"></div>
+    </div>
+  </section>
+
+  <section id="tab-numbers" class="tab">
+    <div class="card"><h2 style="margin:0;font-size:17px">Apna number (OTP verification)</h2>
+      <p class="muted">Har clinic ka apna number hota hai — ek shared number kabhi nahi. Number verify karne ke liye OTP maangein.</p>
+      <label>Phone number</label><input id="numPhone" placeholder="+91-...">
+      <label>Kaam</label><select id="numPurpose"><option value="both">Voice + WhatsApp</option><option value="voice">Voice</option><option value="whatsapp">WhatsApp</option></select>
+      <div class="row" style="margin-top:8px"><button onclick="requestOtp()">OTP maangein</button></div>
+      <div id="otpMsg" class="msg"></div>
+      <label>OTP</label><input id="numOtp" placeholder="6 digit OTP">
+      <div class="row" style="margin-top:8px"><button onclick="verifyOtp()">Verify karein</button>
+      <button class="secondary" onclick="loadNumbers()">Mere numbers dekhein</button></div>
+      <div id="numList"></div><div id="numMsg" class="msg"></div>
+    </div>
+  </section>
+
+  <section id="tab-demo" class="tab">
+    <div class="card"><h2 style="margin:0;font-size:17px">Demo Call (simulated voice call)</h2>
+      <p class="muted">Asli call nahi — dialogue engine ke saath text se simulated call. Har line ek turn hai.</p>
+      <label>Caller ka number</label><input id="demoFrom" value="+919000000001">
+      <label>Patient kya bolega? (ek line = ek turn)</label>
+      <textarea id="demoText" rows="6">Namaste
+Haan
+Mujhe kal shaam Dr. Sharma ko dikhana hai, bukhaar hai
+Mera naam Rahul Verma hai, mobile 9000000001
+shaam 5 baje
+Haan, confirm karein</textarea>
+      <div class="row" style="margin-top:10px"><button onclick="runDemoCall()">Call shuru karein</button></div>
+      <div id="demoTranscript" class="transcript" style="margin-top:10px">Abhi tak koi call nahi.</div>
+      <div id="demoResult" class="msg"></div>
+    </div>
+  </section>
+
+  <section id="tab-admin" class="tab">
+    <div class="card"><h2 style="margin:0;font-size:17px">Platform Admin</h2>
+      <p class="muted">Sirf platform admin ko dikhta hai. Aam clinic user ko 403 milega.</p>
+      <div class="row"><button onclick="loadAdmin()">Admin data dekhein</button></div>
+      <div id="adminOut"></div><div id="adminMsg" class="msg"></div>
+    </div>
+    <div class="card"><h2 style="margin:0;font-size:17px">Open Decisions (PRD Sec 19)</h2>
+      <div id="decisions"></div></div>
+  </section>
+</main>
+<script src="config.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const API = (window.__CLINIC_API_BASE__ || '').replace(/\/+$/, '');  // set in config.js
+function key(){ return localStorage.getItem('cai_api_key') || ''; }
+function saveKey(){ const v = $('apikey').value.trim(); if(!v){ alert('API key paste karein'); return; } localStorage.setItem('cai_api_key', v); $('who').textContent = 'API key save ho gayi (is browser mein).'; loadAll(); }
+function logout(){ localStorage.removeItem('cai_api_key'); $('apikey').value=''; $('who').textContent='Logout ho gaya.'; }
+async function api(path, opts={}){
+  const res = await fetch(API + path, { ...opts, headers: { 'Content-Type':'application/json', 'X-API-Key': key(), ...(opts.headers||{}) } });
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.detail || ('HTTP ' + res.status));
+  return data;
+}
+function showTab(name){
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('active', s.id==='tab-'+name));
+  if(name==='today') loadToday(); if(name==='calls') loadCalls(); if(name==='callbacks') loadCallbacks();
+  if(name==='config') loadConfig(); if(name==='numbers') loadNumbers(); if(name==='admin') loadDecisions();
+}
+function esc(s){ return String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+async function loadHealth(){
+  try{ const h = await fetch(API + '/health').then(r=>r.json()); $('health').textContent = `Status: ${h.status} • version ${h.version} • mode: ${h.mode}`; }catch(e){ $('health').textContent='Server se connect nahi ho raha.'; }
+}
+async function loadDecisions(){
+  try{ const d = await fetch(API + '/api/open-decisions').then(r=>r.json());
+    $('decisions').innerHTML = d.decisions.map(x=>`<p><b>${x.id}</b> — ${esc(x.decision)}<br><span class="badge warn">${x.status}</span> <span class="muted">Default: ${esc(x.default)}</span></p>`).join('');
+  }catch(e){ $('decisions').textContent='Open decisions load nahi hue.'; }
+}
+async function loadToday(){
+  const d = $('todayDate').value || todayISO();
+  try{
+    const data = await api('/clinics/me/today?day=' + d);
+    const stats = await api('/clinics/me/dashboard-stats?day=' + d);
+    $('stats').textContent = `Aaj: ${stats.today_total} appointments • Confirmed: ${stats.paid_confirmed} • Visits: ${stats.visits} • No-show: ${stats.no_shows} • Open callbacks: ${stats.open_callbacks}`;
+    if(!data.appointments.length){ $('todayList').innerHTML = '<p class="muted">Aaj koi appointment nahi hai.</p>'; return; }
+    $('todayList').innerHTML = '<table><tr><th>Time</th><th>Patient</th><th>Doctor</th><th>Reason</th><th>Status</th><th></th></tr>' +
+      data.appointments.map(a=>`<tr><td>${esc(a.slot_start.slice(11,16))}</td><td>${esc(a.patient_name)}<br><span class="muted">${esc(a.patient_mobile)}</span></td><td>${esc(a.doctor_name)}</td><td>${esc(a.reason_line||'')}</td><td><span class="badge">${esc(a.status)}</span><br><span class="muted">${esc(a.payment_status)} • Rs. ${a.booking_amount}</span></td><td>${a.status==='CONFIRMED'?`<button onclick="markOutcome('${a.id}','visit_completed')">Aaya</button> <button class="danger" onclick="markOutcome('${a.id}','no_show')">Nahi aaya</button>`:''}</td></tr>`).join('') + '</table>';
+    $('todayMsg').textContent='';
+  }catch(e){ $('todayMsg').textContent = 'Error: ' + e.message; $('todayMsg').className='msg err'; }
+}
+async function markOutcome(id, outcome){
+  try{ const r = await api(`/appointments/${id}/outcome`, {method:'POST', body: JSON.stringify({outcome})});
+    $('todayMsg').textContent = 'Update ho gaya: ' + r.status; $('todayMsg').className='msg ok'; loadToday();
+  }catch(e){ $('todayMsg').textContent='Error: '+e.message; $('todayMsg').className='msg err'; }
+}
+async function loadDoctorsForBook(){
+  try{ const c = await api('/clinics/me'); $('bookDoctor').innerHTML = c.doctors.map(d=>`<option value="${d.id}">${esc(d.name)} (${esc(d.speciality||'General')})</option>`).join('');
+    $('bookType').innerHTML = '<option value="">(default duration)</option>';
+  }catch(e){ $('bookMsg').textContent='Pehle API key save karein. Error: '+e.message; $('bookMsg').className='msg err'; }
+}
+async function loadSlots(){
+  const doctorId = $('bookDoctor').value, d = $('bookDate').value;
+  if(!doctorId || !d){ $('bookMsg').textContent='Doctor aur date chunein.'; return; }
+  try{ const s = await api(`/slots?doctor_id=${doctorId}&date=${d}`);
+    $('bookSlot').innerHTML = s.slots.length ? s.slots.map(x=>`<option value="${x}">${x.slice(11,16)}</option>`).join('') : '<option value="">Koi slot khaali nahi</option>';
+    $('bookMsg').textContent = s.slots.length + ' slots mile.'; $('bookMsg').className='msg ok';
+  }catch(e){ $('bookMsg').textContent='Error: '+e.message; $('bookMsg').className='msg err'; }
+}
+async function bookNow(){
+  try{ const r = await api('/appointments', {method:'POST', body: JSON.stringify({
+      doctor_id: $('bookDoctor').value, patient_name: $('bookName').value, patient_mobile: $('bookMobile').value,
+      date: $('bookDate').value, slot_start: $('bookSlot').value, reason_line: $('bookReason').value,
+      appointment_type_id: $('bookType').value || null, source: 'manual'})});
+    $('bookMsg').textContent = `Booking confirm! Token ${r.token_no ?? '-'} • ${r.slot_start} • Status: ${r.status}`; $('bookMsg').className='msg ok';
+  }catch(e){ $('bookMsg').textContent='Error: '+e.message; $('bookMsg').className='msg err'; }
+}
+async function loadCalls(){
+  try{ const d = await api('/clinics/me/calls');
+    $('callsList').innerHTML = d.calls.length ? '<table><tr><th>Time</th><th>From</th><th>Outcome</th><th>Failure</th></tr>' +
+      d.calls.map(c=>`<tr><td>${esc((c.started_at||'').slice(0,16).replace('T',' '))}</td><td>${esc(c.from_number)}</td><td>${esc(c.outcome)}</td><td>${esc(c.failure_reason||'')}</td></tr>`).join('')+'</table>' : '<p class="muted">Koi call abhi tak nahi.</p>';
+  }catch(e){ $('callsMsg').textContent='Error: '+e.message; $('callsMsg').className='msg err'; }
+}
+async function loadCallbacks(){
+  try{ const d = await api('/clinics/me/callbacks');
+    $('callbacksList').innerHTML = d.callbacks.length ? '<table><tr><th>Naam</th><th>Mobile</th><th>Reason</th><th>Status</th><th></th></tr>' +
+      d.callbacks.map(c=>`<tr><td>${esc(c.name)}</td><td>${esc(c.mobile)}</td><td>${esc(c.reason)}</td><td>${esc(c.status)}</td><td>${c.status==='open'?`<button onclick="doneCallback('${c.id}')">Done karein</button>`:''}</td></tr>`).join('')+'</table>' : '<p class="muted">Koi callback pending nahi.</p>';
+  }catch(e){ $('callbacksMsg').textContent='Error: '+e.message; $('callbacksMsg').className='msg err'; }
+}
+async function doneCallback(id){
+  try{ await api('/clinics/me/callbacks/'+id, {method:'PATCH', body: JSON.stringify({status:'done'})}); loadCallbacks(); }
+  catch(e){ $('callbacksMsg').textContent='Error: '+e.message; $('callbacksMsg').className='msg err'; }
+}
+async function loadConfig(){
+  try{ const c = await api('/clinics/me');
+    $('cfgName').value=c.display_name||''; $('cfgFees').value=c.fees_text||''; $('cfgGreeting').value=c.greeting_text||'';
+    $('cfgWaDoc').value=c.whatsapp_doctor||''; $('cfgWaRec').value=c.whatsapp_reception||'';
+    $('cfgOpen').value=c.opening_time||''; $('cfgClose').value=c.closing_time||'';
+    $('cfgAmtOn').value=String(!!c.booking_amount_enabled); $('cfgAmt').value=c.booking_amount_default??100;
+    $('cfgCutoff').value=c.timely_cancel_hours??4; $('cfgLate').value=c.late_cancel_policy||'forfeit';
+    $('cfgMsg').textContent='Config load ho gaya. Specialty: '+(c.specialty_template_id||'general'); $('cfgMsg').className='msg ok';
+  }catch(e){ $('cfgMsg').textContent='Error: '+e.message; $('cfgMsg').className='msg err'; }
+}
+async function saveConfig(){
+  try{ const r = await api('/clinics/me', {method:'PATCH', body: JSON.stringify({
+      display_name: $('cfgName').value, fees_text: $('cfgFees').value, greeting_text: $('cfgGreeting').value,
+      whatsapp_doctor: $('cfgWaDoc').value, whatsapp_reception: $('cfgWaRec').value,
+      opening_time: $('cfgOpen').value, closing_time: $('cfgClose').value,
+      booking_amount_enabled: $('cfgAmtOn').value==='true',
+      booking_amount_default: parseInt($('cfgAmt').value||'100',10),
+      timely_cancel_hours: parseInt($('cfgCutoff').value||'4',10),
+      late_cancel_policy: $('cfgLate').value})});
+    $('cfgMsg').textContent='Config save ho gaya.'; $('cfgMsg').className='msg ok';
+  }catch(e){ $('cfgMsg').textContent='Error: '+e.message; $('cfgMsg').className='msg err'; }
+}
+async function addDoctor(){
+  try{ const r = await api('/clinics/me/doctors', {method:'POST', body: JSON.stringify({
+      name: $('newDocName').value, speciality: $('newDocSpec').value||'General / GP',
+      slot_minutes: parseInt($('newDocSlot').value||'15',10)})});
+    $('docMsg').textContent='Doctor jud gaya: '+r.name; $('docMsg').className='msg ok'; loadDoctorsForBook();
+  }catch(e){ $('docMsg').textContent='Error: '+e.message; $('docMsg').className='msg err'; }
+}
+async function requestOtp(){
+  try{ const r = await api('/numbers/request-otp', {method:'POST', body: JSON.stringify({phone_number: $('numPhone').value, purpose: $('numPurpose').value})});
+    $('otpMsg').textContent = 'OTP bheja gaya.' + (r.dev_otp ? ' (Demo mode — OTP: ' + r.dev_otp + ')' : ''); $('otpMsg').className='msg ok';
+  }catch(e){ $('otpMsg').textContent='Error: '+e.message; $('otpMsg').className='msg err'; }
+}
+async function verifyOtp(){
+  try{ const r = await api('/numbers/verify-otp', {method:'POST', body: JSON.stringify({phone_number: $('numPhone').value, otp: $('numOtp').value})});
+    $('numMsg').textContent = r.verified ? 'Number verify ho gaya ✓' : 'OTP galat hai — dobara try karein.'; $('numMsg').className = r.verified?'msg ok':'msg err'; loadNumbers();
+  }catch(e){ $('numMsg').textContent='Error: '+e.message; $('numMsg').className='msg err'; }
+}
+async function loadNumbers(){
+  try{ const d = await api('/numbers/me');
+    $('numList').innerHTML = d.numbers.length ? '<table><tr><th>Number</th><th>Kaam</th><th>Verified</th></tr>' +
+      d.numbers.map(n=>`<tr><td>${esc(n.phone_number)}</td><td>${esc(n.purpose)}</td><td>${n.verified?'<span class="badge">Verified ✓</span>':'<span class="badge warn">Pending</span>'}</td></tr>`).join('')+'</table>' : '<p class="muted">Abhi koi number register nahi hai.</p>';
+  }catch(e){ $('numMsg').textContent='Error: '+e.message; $('numMsg').className='msg err'; }
+}
+async function runDemoCall(){
+  const turns = $('demoText').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  $('demoTranscript').textContent = 'Call chal rahi hai...';
+  try{ const r = await api('/voice/simulate', {method:'POST', body: JSON.stringify({from_number: $('demoFrom').value, turns})});
+    $('demoTranscript').textContent = r.transcript.map(t=>(t.role==='patient'?'Patient: ':'Assistant: ')+t.text).join('\n\n');
+    $('demoResult').textContent = r.appointment ? `Booking: ${r.appointment.date} ${r.appointment.slot_start.slice(11,16)} • Status: ${r.appointment.status} • Token: ${r.appointment.token_no ?? '-'}` : 'Is call mein booking confirm nahi hui (state: '+(r.state||'?')+').';
+    $('demoResult').className='msg ok';
+  }catch(e){ $('demoTranscript').textContent='Demo call nahi chali: '+e.message+'\n(Dialogue module abhi build ho raha hai to 503 aayega — tab scripts/demo_call.py se end-to-end demo dekhein.)'; $('demoResult').textContent=''; }
+}
+async function loadAdmin(){
+  try{ const t = await api('/admin/tenants'); const s = await api('/admin/stats');
+    $('adminOut').innerHTML = `<p>Tenants: ${s.tenants} • Appointments: ${s.appointments} • Calls: ${s.calls} • Paid booking amount: Rs. ${s.booking_payments_paid_rs}</p>` +
+      '<table><tr><th>Clinic</th><th>Plan</th><th>Status</th><th>Appointments</th></tr>' +
+      t.tenants.map(x=>`<tr><td>${esc(x.clinic_name||x.name)}</td><td>${esc(x.plan)}</td><td>${esc(x.status)}</td><td>${x.appointments}</td></tr>`).join('')+'</table>';
+    $('adminMsg').textContent='';
+  }catch(e){ $('adminMsg').textContent='Error: '+e.message+' (sirf platform admin)'; $('adminMsg').className='msg err'; }
+}
+function loadAll(){ loadHealth(); loadDecisions(); loadDoctorsForBook(); loadToday(); }
+$('apikey').value = key();
+$('todayDate').value = todayISO();
+$('bookDate').value = (()=>{ const d=new Date(); d.setDate(d.getDate()+1); return d.toISOString().slice(0,10); })();
+loadHealth(); loadDecisions();
+if(key()) loadAll();
+</script>
+</body>
+</html>
