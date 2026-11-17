@@ -12,4 +12,4 @@
  * index.html calls the backend through this one variable — no URL is
  * hardcoded anywhere else in the frontend.
  */
-window.__CLINIC_API_BASE__ = '';
+window.__CLINIC_API_BASE__ = 'https://clinic-ai-assistant-mljb.onrender.com';
