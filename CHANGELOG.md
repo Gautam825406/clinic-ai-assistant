@@ -1,5 +1,16 @@
 # Changelog — Clinic AI Assistant
 
+## v1.3.0 — 18 Nov 2026 — PRD audit fixes + landing page + subscription hook (config-only)
+
+Audit against PRD v1.1 (FR-01..FR-26) — 98 pytest pass, demo flow CONFIRMED Token 1:
+- **FR-02 (fixed):** `dialogue.detect_language()` — pehle utterance se Hindi / English / Hinglish detect, session par store, `/voice/simulate` response mein `language` field.
+- **FR-16 (fixed):** returning patient — mobile se purana patient milne par naam auto-fill, dobara naam nahi poochha jata (`returning_patient` flag).
+- **FR-13 / FR-14 (fixed — triggers):** `POST /clinics/me/digest/send` aur `POST /clinics/me/reminders/send` — scheduler/cron ab in endpoints ko call karke digest + reminders bhej sakta hai; reminder opt-out (`consent_flags.reminder_opt_out`) ko `send_reminders` respect karta hai.
+- **FR-14 / FR-26 (fixed):** `POST /webhooks/whatsapp` — patient replies: opt-out (STOP / “reminder band”) aur “nahi aa paunga” cancel — timely cancel = full refund, kabhi forfeit nahi; ambiguous mobile (ek se zyada tenant) par koi action nahi.
+- **FR-23 (config-only hook):** `backend/app/plans.py` — Pilot / Starter ₹2,999 / Growth ₹5,999 / Clinic+ ₹9,999 (PRD Sec 13.2 indicative bands, `price_status: hypothesis`); `GET /clinics/me/subscription` plan + usage deta hai; signup par Subscription row banti hai (plan pilot, status trial). Koi payment / autopay / invoice code mein nahi — billing future step hai (Cashfree prod keys + pilot per-call cost validation ke baad).
+- **PRD Sec 10.3 (fixed):** `GET /clinics/me/export` — clinic apne appointments ka CSV export kar sakti hai (sirf apna tenant).
+- **Landing page:** `frontend/landing.html` — senior-quality public page (hero, how-it-works, honest DEMO transcript mock, features, Pricing with hypothesis note, FAQ), CTA dashboard (`index.html`) + signup se juda; koi payment button live nahi. Dashboard header se “About / Landing page” link.
+
 ## v1.2.0 — 18 Nov 2026 — one repo, frontend/ + backend/ split (user decision)
 
 - **Same repo, two halves:** `frontend/` (static dashboard) + `backend/`

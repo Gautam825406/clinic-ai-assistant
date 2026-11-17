@@ -98,6 +98,34 @@ Changing `specialty_template_id` to a valid template also applies that
 template's appointment types (unknown template → `400`). Returns the
 updated clinic config.
 
+### GET /clinics/me/subscription
+
+Auth required. FR-23 config-only hook: clinic ka plan + usage. Response:
+`{ "plan": { "id": "pilot", "name": "Pilot", "price_rs_per_month": 0,
+"price_status": "hypothesis", ... }, "status": "trial",
+"autopay_mandate_id": null,
+"usage": { "calls_total": 0, "appointments_total": 0, "doctors": 1 },
+"all_plans": [ pilot, starter (₹2,999, hypothesis), growth (₹5,999, hypothesis),
+clinic_plus (₹9,999, hypothesis) ], "billing_note": "..." }`.
+Prices are PRD Sec 13.2 indicative bands — no payment, autopay or
+invoice is created here.
+
+### POST /clinics/me/reminders/send
+
+Auth required. FR-14 trigger: reminder window ke CONFIRMED appointments
+ko WhatsApp reminder bhejo. Returns `{ "status": "ok", "sent_count": N, "sent": [...] }`.
+Opt-out patients are skipped.
+
+### POST /clinics/me/digest/send
+
+Auth required. FR-13 trigger: aaj ki list ka daily digest doctor +
+reception ke WhatsApp par bhejo. Returns the `send_daily_digest` result.
+
+### GET /clinics/me/export
+
+Auth required. PRD Sec 10.3: clinic apne appointments ka CSV export
+(download) — sirf apna tenant.
+
 ### GET /clinics/me/today?day=YYYY-MM-DD
 
 Auth required. `day` defaults to today (IST). Time-ordered appointments:
@@ -220,6 +248,14 @@ only if the booking was CONFIRMED and a reminder was sent. Returns the
 appointment (+ `payment` detail).
 
 ## Voice
+
+### POST /webhooks/whatsapp
+
+No auth (vendor webhook). PRD Sec 10.1: delivery statuses + patient
+replies. Opt-out (`STOP` / "reminder band") sets the patient's
+`reminder_opt_out`; a "nahi aa paunga" reply cancels the next upcoming
+CONFIRMED appointment via the FR-26 rules (timely = full refund).
+Ambiguous mobile (more than one tenant) → no action.
 
 ### POST /webhooks/telephony/call
 

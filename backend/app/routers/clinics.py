@@ -2,17 +2,21 @@
 holidays, calls, callbacks, dashboard stats. All routes are tenant-scoped:
 the clinic is always the caller's own; there is no tenant id in the URL.
 """
+import csv
 import datetime as dt
+import io
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..date_parser import now_ist
 from ..models import (
-    Appointment, Call, CallbackTicket, Doctor, Holiday, Schedule, User,
+    Appointment, Call, CallbackTicket, Doctor, Holiday, Patient, Schedule,
+    Subscription, User,
 )
 from ..schemas import ClinicConfigUpdate, DoctorCreate, ScheduleCreate
 from ..security import get_current_user
@@ -184,3 +188,90 @@ def dashboard_stats(day: date | None = None, user: User = Depends(get_current_us
         "forfeited_rs": forfeited, "refunded_rs": refunded,
         "open_callbacks": open_callbacks, "calls_total": calls_today,
     }
+
+
+@router.get("/clinics/me/subscription")
+def my_subscription(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """FR-23 (config-only hook): clinic ka plan + usage, bina fake billing.
+
+    Subscription row (seeded at signup: plan 'pilot', status 'trial')
+    aur PLANS (backend/app/plans.py — PRD Sec 13.2 indicative bands,
+    price_status 'hypothesis') se plan detail. Koi payment, autopay
+    mandate ya invoice yahan create nahi hota — wo future step hai
+    (Cashfree prod keys + pilot per-call cost validation ke baad).
+    """
+    from ..plans import PLANS, get_plan
+
+    sub = db.query(Subscription).filter(
+        Subscription.tenant_id == user.tenant_id).first()
+    plan_id = (sub.plan if sub else None) or "pilot"
+    plan = get_plan(plan_id)
+    return {
+        "plan": plan,
+        "status": sub.status if sub else "trial",
+        "current_period_start": sub.current_period_start.isoformat() if sub and sub.current_period_start else None,
+        "current_period_end": sub.current_period_end.isoformat() if sub and sub.current_period_end else None,
+        "autopay_mandate_id": sub.autopay_mandate_id if sub else None,
+        "usage": {
+            "calls_total": db.query(Call).filter(Call.tenant_id == user.tenant_id).count(),
+            "appointments_total": db.query(Appointment).filter(Appointment.tenant_id == user.tenant_id).count(),
+            "doctors": db.query(Doctor).filter(Doctor.tenant_id == user.tenant_id).count(),
+        },
+        "all_plans": [get_plan(pid) for pid in ("pilot", "starter", "growth", "clinic_plus")],
+        "billing_note": "Prices are PRD Sec 13.2 indicative bands (hypothesis) — "
+                        "final price pilot ke pehle 7 din ke asal per-call cost se "
+                        "validate hone ke baad lock hoga. Abhi koi payment collect nahi hota.",
+    }
+
+
+@router.post("/clinics/me/reminders/send")
+def send_reminders_now(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """FR-14 trigger: clinic ke reminder window mein aane wale CONFIRMED
+    appointments ko WhatsApp reminder bhejo. Opt-out wale patients skip
+    hote hain (notifications.send_reminders). Scheduler / cron is
+    endpoint ko clinic khulne se pehle call karega; manual trigger bhi
+    yahi hai."""
+    from ..notifications import send_reminders
+
+    sent = send_reminders(db, user.tenant_id)
+    return {"status": "ok", "sent_count": len(sent), "sent": sent}
+
+
+@router.post("/clinics/me/digest/send")
+def send_digest_now(day: date | None = None, user: User = Depends(get_current_user),
+                    db: Session = Depends(get_db)):
+    """FR-13 trigger: aaj ki list ka daily digest doctor + reception ke
+    WhatsApp par bhejo. Roz clinic khulne se 30 min pehle scheduler /
+    cron is endpoint ko call karega."""
+    from ..notifications import send_daily_digest
+
+    day = day or now_ist().date()
+    result = send_daily_digest(db, user.tenant_id, day)
+    return {"date": day.isoformat(), **result}
+
+
+@router.get("/clinics/me/export")
+def export_my_data(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """PRD Sec 10.3: clinic apna data (appointments + patients) CSV mein
+    export kar sakti hai — sirf apna tenant, bina support ko bole."""
+    appts = (db.query(Appointment).filter(Appointment.tenant_id == user.tenant_id)
+             .order_by(Appointment.slot_start).all())
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(["date", "slot_start", "slot_end", "patient_name", "patient_mobile",
+                "doctor_id", "reason_line", "status", "source", "token_no",
+                "payment_status", "booking_amount"])
+    for a in appts:
+        patient = db.query(Patient).filter(
+            Patient.id == a.patient_id, Patient.tenant_id == user.tenant_id).first()
+        w.writerow([a.date.isoformat() if a.date else "",
+                    a.slot_start.isoformat() if a.slot_start else "",
+                    a.slot_end.isoformat() if a.slot_end else "",
+                    patient.name if patient else "",
+                    patient.mobile if patient else "",
+                    a.doctor_id, a.reason_line or "", a.status, a.source,
+                    a.token_no if a.token_no is not None else "",
+                    a.payment_status, a.booking_amount])
+    buf.seek(0)
+    return StreamingResponse(iter([buf.getvalue()]), media_type="text/csv",
+                             headers={"Content-Disposition": "attachment; filename=clinic-ai-assistant-appointments.csv"})

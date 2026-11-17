@@ -119,6 +119,10 @@ def send_reminders(db: Session, tenant_id: str) -> list:
             Doctor.id == appt.doctor_id, Doctor.tenant_id == tenant_id).first()
         if not patient or not patient.mobile:
             continue
+        # FR-14 opt-out: patient ne kabhi "reminder band" / STOP bola ho to
+        # dobara reminder mat bhejo (consent_flags.reminder_opt_out).
+        if (patient.consent_flags or {}).get("reminder_opt_out"):
+            continue
         already = db.query(Notification).filter(
             Notification.tenant_id == tenant_id,
             Notification.type == "reminder",

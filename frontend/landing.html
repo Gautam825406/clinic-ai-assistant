@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Clinic AI Assistant — Hinglish AI voice assistant jo clinic ke phone par appointment book karta hai, refundable booking amount leta hai aur doctor ko WhatsApp summary bhejta hai. Pilot: General / GP.">
+<title>Clinic AI Assistant — Clinic ki calls, booking aur daily list, bina ek call miss kiye</title>
+<style>
+  :root{--green:#0b5d3b;--green-dark:#083d27;--amber:#e8a33d;--ink:#16211b;--muted:#5b6b62;--line:#dfe7e2;--bg:#f6f8f7;--card:#fff;--red:#b3261e}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+  a{color:var(--green)}
+  .skip{position:absolute;left:-999px;top:0;background:var(--green);color:#fff;padding:8px 14px;z-index:20}
+  .skip:focus{left:8px;top:8px}
+  header.site{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--line)}
+  .wrap{max-width:1020px;margin:0 auto;padding:0 16px}
+  .nav{display:flex;align-items:center;gap:16px;padding:12px 0}
+  .brand{font-weight:800;font-size:18px;color:var(--green);text-decoration:none;white-space:nowrap}
+  .brand small{display:block;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em}
+  nav.links{margin-left:auto;display:flex;gap:16px;align-items:center}
+  nav.links a{text-decoration:none;color:var(--ink);font-size:14px;font-weight:600}
+  nav.links a:hover{color:var(--green)}
+  .btn{display:inline-block;background:var(--green);color:#fff;text-decoration:none;border-radius:10px;padding:11px 20px;font-size:15px;font-weight:700;border:1px solid var(--green)}
+  .btn:hover{background:var(--green-dark)}
+  .btn.ghost{background:#fff;color:var(--green)}
+  .btn.small{padding:8px 14px;font-size:14px}
+  section{padding:56px 0}
+  .hero{background:linear-gradient(180deg,#eaf4ee,#f6f8f7);padding:64px 0 48px}
+  .hero h1{font-size:clamp(28px,5vw,44px);line-height:1.15;margin:0 0 14px;max-width:640px}
+  .hero p.lede{font-size:18px;color:#33443a;max-width:620px;margin:0 0 22px}
+  .cta-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .fine{font-size:13px;color:var(--muted);margin-top:14px;max-width:620px}
+  .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:26px}
+  .pill{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600}
+  h2{font-size:clamp(22px,3.5vw,30px);margin:0 0 8px;line-height:1.25}
+  .sub{color:var(--muted);max-width:640px;margin:0 0 24px}
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .step .num{display:inline-flex;width:34px;height:34px;border-radius:50%;background:var(--green);color:#fff;align-items:center;justify-content:center;font-weight:800;margin-bottom:10px}
+  .step h3{margin:0 0 6px;font-size:16px}
+  .step p{margin:0;font-size:14px;color:#33443a}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .card h3{margin:0 0 6px;font-size:16px}
+  .card p{margin:0;font-size:14px;color:#33443a}
+  .card .tag{font-size:12px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em}
+  .split{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:start}
+  .phone{background:#0f1f17;color:#eaf4ee;border-radius:22px;padding:20px;max-width:420px}
+  .phone .bar{font-size:12px;opacity:.75;display:flex;justify-content:space-between;margin-bottom:12px}
+  .bubble{background:#1d3a2c;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:14px}
+  .bubble.me{background:#0b5d3b}
+  .bubble .who{font-size:11px;opacity:.7;display:block;margin-bottom:2px}
+  .mock-note{font-size:12px;opacity:.75;margin-top:12px}
+  .plans{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .plan{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column}
+  .plan.featured{border:2px solid var(--green)}
+  .plan h3{margin:0;font-size:17px}
+  .price{font-size:26px;font-weight:800;margin:8px 0 2px}
+  .price small{font-size:13px;font-weight:600;color:var(--muted)}
+  .hyp{font-size:12px;font-weight:700;color:#7a5b00;background:#fff3cd;border-radius:6px;padding:3px 8px;display:inline-block;margin:6px 0}
+  .plan ul{margin:12px 0;padding-left:18px;font-size:14px;flex:1}
+  .plan li{margin:5px 0}
+  details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:10px 0}
+  summary{font-weight:700;cursor:pointer;font-size:15px}
+  details p{margin:8px 0 0;font-size:14px;color:#33443a}
+  footer{background:var(--green-dark);color:#d7e8dd;padding:36px 0}
+  footer a{color:#fff}
+  footer .wrap{display:flex;gap:24px;flex-wrap:wrap;justify-content:space-between}
+  footer p{margin:4px 0;font-size:13px;max-width:560px}
+  @media (max-width:860px){.steps{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:repeat(2,1fr)}.plans{grid-template-columns:repeat(2,1fr)}.split{grid-template-columns:1fr}}
+  @media (max-width:560px){nav.links a:not(.btn){display:none}.steps,.grid,.plans{grid-template-columns:1fr}section{padding:40px 0}.hero{padding:44px 0 32px}}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Main content par jayein</a>
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="landing.html">Clinic AI Assistant<small>General / GP pilot &middot; Hinglish voice booking</small></a>
+    <nav class="links" aria-label="Main">
+      <a href="#how">Kaise kaam karta hai</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn small" href="index.html">Start pilot</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero">
+  <div class="wrap">
+    <h1>Clinic ka phone kabhi miss nahi hoga — har call ka jawab, har booking ki WhatsApp summary.</h1>
+    <p class="lede">Clinic AI Assistant patient ki call Hinglish mein sunta hai, naam–mobile–din–time lekar live slot check karta hai, confirm-back ke baad booking karta hai — aur doctor ko WhatsApp par summary bhej deta hai. Koi hardware nahi, koi app install nahi.</p>
+    <div class="cta-row">
+      <a class="btn" href="index.html">Start pilot — dashboard kholein</a>
+      <a class="btn ghost" href="index.html">Demo call dekhain</a>
+    </div>
+    <p class="fine">Abhi demo mode mein chal raha hai: booking, payment link aur WhatsApp flow end-to-end test kar sakte hain — koi real call, real WhatsApp message ya real rupee abhi nahi chalta. Live pilot ke liye telephony, WhatsApp aur payment credentials chahiye (neeche FAQ dekhein).</p>
+    <div class="pill-row" aria-label="Highlights">
+      <span class="pill">Pilot specialty: General / GP</span>
+      <span class="pill">Hinglish + Hindi + English</span>
+      <span class="pill">Refundable booking amount: ₹50 / ₹100</span>
+      <span class="pill">WhatsApp summary + daily digest</span>
+      <span class="pill">24&times;7 — clinic band hone ke baad bhi</span>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>Kaise kaam karta hai</h2>
+    <p class="sub">Char steps. Patient ko kuch naya seekhna nahi — bas clinic ke number par call karni hai.</p>
+    <div class="steps">
+      <div class="step"><span class="num">1</span><h3>Call aati hai</h3><p>Patient clinic ke number par call karta hai. AI greeting + recording-consent line bolta hai, aur patient ki bhasha (Hindi / English / Hinglish) follow karta hai.</p></div>
+      <div class="step"><span class="num">2</span><h3>Slot check hota hai</h3><p>Naam, mobile, doctor aur din–time lekar system live slot check karta hai. Manga slot full ho to 2 sabse paas ke alternatives offer hote hain. Slot ka faisla hamesha deterministic code + database karta hai — LLM kabhi slot decide nahi karta.</p></div>
+      <div class="step"><span class="num">3</span><h3>Confirm-back, phir hold</h3><p>AI poora confirm-back padhta hai — naam, din, samay, doctor. Patient “haan” bole tabhi booking aage badhti hai. Booking amount on ho to slot 15 minute hold hota hai aur WhatsApp par UPI payment link jata hai.</p></div>
+      <div class="step"><span class="num">4</span><h3>Confirmed + WhatsApp</h3><p>Payment verify hote hi booking CONFIRMED hoti hai, token number milta hai, patient ko confirmation aur doctor + reception ko structured WhatsApp summary jata hai. Roz subah aaj ki poori list ka daily digest bhi jata hai.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="flow" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap split">
+    <div>
+      <h2>Ek booking, shuru se aakhir tak</h2>
+      <p class="sub">Ye ek <strong>honest product mock</strong> hai — simulated demo call ki transcript, asli clinic ki nahi. Demo data saaf taur par DEMO likha hai.</p>
+      <ul style="font-size:15px;line-height:1.7">
+        <li><strong>Refundable booking amount (₹100):</strong> aayenge to visit fees mein adjust, time par cancel (4 ghante pehle) par poora refund, bina bataye nahi aayenge to forfeit. Clinic-side cancel par hamesha poora refund.</li>
+        <li><strong>Reschedule:</strong> amount nayi booking par carry-forward — dobara payment nahi.</li>
+        <li><strong>No-UPI exception:</strong> jo patient UPI se pay na kar paaye, reception policy ke hisaab se manually confirm kar sakti hai — patient ke “maine pay kar diya” bolne se booking confirm nahi hoti.</li>
+        <li><strong>Reminder par cancel:</strong> reminder par time par cancel kare to poora refund — forfeit kabhi nahi.</li>
+      </ul>
+      <a class="btn" href="index.html">Dashboard par demo call chalaiye</a>
+    </div>
+    <div class="phone" role="img" aria-label="Simulated demo call transcript: patient books an appointment for tomorrow evening, confirms, and gets token 1 after payment.">
+      <div class="bar"><span>Simulated call — DEMO</span><span>Care Plus Clinic — DEMO</span></div>
+      <div class="bubble"><span class="who">Assistant</span>Namaste! Main Care Plus Clinic ka digital assistant hoon. Ye call record ho rahi hai — kya aap iski consent dete hain?</div>
+      <div class="bubble me"><span class="who">Patient (demo)</span>Haan. Mujhe kal shaam Dr. Sharma ko dikhana hai, bukhaar hai.</div>
+      <div class="bubble"><span class="who">Assistant</span>Aapka naam kya hai? Aur mobile number batayein, please.</div>
+      <div class="bubble me"><span class="who">Patient (demo)</span>Rahul Verma, mobile 9000000001. Shaam 5 baje.</div>
+      <div class="bubble"><span class="who">Assistant</span>Confirm karein — Rahul Verma, kal, Thursday, 19 November, shaam 5:00, Dr. Sharma, bukhaar ke liye. Sahi hai? ₹100 booking amount hai — aayenge to fees mein adjust, time par cancel par poora wapas.</div>
+      <div class="bubble me"><span class="who">Patient (demo)</span>Haan, sahi hai.</div>
+      <div class="bubble"><span class="who">Assistant</span>Ho gaya. Payment link WhatsApp par bheja hai. Payment hote hi token number milega — Token 1.</div>
+      <p class="mock-note">Mock transcript — demo clinic “Care Plus Clinic — DEMO”, doctor “Dr. Sharma (DEMO)”, patient “Rahul Verma” demo data hai. Koi asli clinic, doctor ya patient nahi.</p>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>Jo product mein aaj sach mein hai</h2>
+    <p class="sub">Har feature neeche PRD (v1.1) ke requirement se juda hai — aur automated tests se cover hai.</p>
+    <div class="grid">
+      <div class="card"><span class="tag">FR-01 – FR-05</span><h3>Voice booking, confirm-back ke saath</h3><p>Greeting, recording consent, naam–mobile–doctor–reason collect, live slot check, double confirm-back. Confirm ke bina koi booking save nahi hoti.</p></div>
+      <div class="card"><span class="tag">FR-04 / FR-06</span><h3>Deterministic slot engine</h3><p>Doctor-wise weekly schedule, breaks, holidays. Ek hi slot par do bookings database constraint se reject hoti hain. Full slot par hamesha 2 alternatives.</p></div>
+      <div class="card"><span class="tag">FR-26</span><h3>Refundable booking amount</h3><p>₹50 / ₹100 ya custom, per clinic / specialty / appointment type. 15-min hold, UPI link, webhook verify ke baad hi CONFIRMED. Adjust / refund / forfeit ke niyam code mein fixed hain.</p></div>
+      <div class="card"><span class="tag">FR-11 / FR-12 / FR-13</span><h3>WhatsApp summary + daily digest</h3><p>Har booking / cancel / reschedule par doctor + reception ko structured summary, patient ko confirmation with token, roz clinic khulne se 30 min pehle aaj ki list.</p></div>
+      <div class="card"><span class="tag">FR-14 / FR-19</span><h3>Reminders + callback queue</h3><p>Appointment se pehle (clinic-configured, default 2 ghante) WhatsApp reminder — opt-out kaam karta hai. Human chahiye ho to callback ticket, reception “done” mark karti hai.</p></div>
+      <div class="card"><span class="tag">FR-09 / FR-10</span><h3>Safety, pehle</h3><p>Emergency signals par booking rukti hai, emergency script + clinic alert. Medical advice par fixed deflection — dawai / diagnosis kabhi nahi. “Insaan se baat karni hai” par human handoff.</p></div>
+      <div class="card"><span class="tag">FR-16 / FR-17</span><h3>Returning patient + config panel</h3><p>Number se purana patient pehchana jata hai — naam dobara nahi poochha jata. Doctors, timings, fees text, greeting, WhatsApp numbers — sab bina code ke config se badalte hain.</p></div>
+      <div class="card"><span class="tag">FR-20 / FR-21 / FR-25</span><h3>Manual entry + templates</h3><p>Reception khud bhi usi register mein walk-in entry daal sakti hai. Multi-doctor routing naam / speciality se. Specialty templates: General, Dental, Dermatology, Paediatrics, Physiotherapy, Custom.</p></div>
+      <div class="card"><span class="tag">FR-23 / FR-18</span><h3>Multi-tenant SaaS + admin</h3><p>Har clinic ka alag workspace, login, number aur data — cross-tenant access 404 deta hai. Platform admin ko saari clinics, failures aur usage ek screen par dikhte hain.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <h2>Pricing — abhi hypothesis, final nahi</h2>
+    <p class="sub">Ye plans PRD Sec 13.2 ke indicative bands hain. <strong>Starter ₹2,999/mo ek target price hai — final nahi.</strong> Pilot ke pehle 7 din ke asal per-call cost (telephony + STT/TTS + LLM + WhatsApp + hosting) se validate hone ke baad hi price lock hoga. Cost zyada nikli to pehle plan ki call limit / included minutes adjust hongi, price umeed par nahi badhega. Abhi koi payment button live nahi hai — payment demo mode mein hai.</p>
+    <div class="plans">
+      <div class="plan">
+        <h3>Pilot</h3>
+        <div class="price">₹0 <small>/ 7–14 din</small></div>
+        <span class="hyp">Free trial — feedback ke badle</span>
+        <ul><li>1 doctor, 1 number</li><li>Voice booking + confirm-back</li><li>Refundable booking amount</li><li>WhatsApp summary + daily digest</li><li>Call log + callback queue</li><li>1 specialty template (General / GP)</li></ul>
+        <a class="btn" href="index.html">Start pilot</a>
+      </div>
+      <div class="plan featured">
+        <h3>Starter</h3>
+        <div class="price">₹2,999 <small>/ month</small></div>
+        <span class="hyp">Target price — hypothesis, lock nahi hua</span>
+        <ul><li>1–2 doctors, 1 branch</li><li>Up to ~600 calls/mo</li><li>Pilot ke saare features</li><li>1 number, apna workspace + login</li><li>Booking + WhatsApp summary, call logs</li></ul>
+        <a class="btn" href="index.html">Start pilot</a>
+      </div>
+      <div class="plan">
+        <h3>Growth</h3>
+        <div class="price">₹5,999 <small>/ month</small></div>
+        <span class="hyp">Indicative band — final nahi</span>
+        <ul><li>3–5 doctors, up to ~1,500 calls/mo</li><li>Starter ke saare features</li><li>Reminders + returning-patient recognition</li><li>Multi-doctor, callback queue, manual entry</li><li>Saare specialty templates</li></ul>
+        <a class="btn ghost" href="index.html">Book a demo</a>
+      </div>
+      <div class="plan">
+        <h3>Clinic+</h3>
+        <div class="price">₹9,999 <small>/ month se</small></div>
+        <span class="hyp">Indicative band — final nahi</span>
+        <ul><li>6+ doctors / multi-branch</li><li>Growth ke saare features</li><li>Branch-wise workspace + reports</li><li>Priority support</li><li>Custom greeting / voice</li></ul>
+        <a class="btn ghost" href="index.html">Book a demo</a>
+      </div>
+    </div>
+    <p class="fine">Subscription ka structure aaj config level par taiyaar hai (plans + workspace subscription record) — billing, UPI autopay aur GST invoice pilot cost validation + Cashfree production keys ke baad aayenge. Tab tak koi clinic se payment collect nahi hota.</p>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <h2>FAQ</h2>
+    <details><summary>Kya ye medical advice ya diagnosis dega?</summary><p>Nahi — kabhi nahi. “Kaunsi dawa loon?” ya “Ye serious hai?” par agent ek fixed deflection bolta hai aur appointment / reception ki taraf le jata hai. Emergency signals par booking rukti hai aur emergency script + clinic alert jata hai.</p></details>
+    <details><summary>Real call kab se chalegi? Abhi kya demo hai?</summary><p>Abhi demo mode hai: simulated call, simulated payment link aur simulated WhatsApp outbox end-to-end chalte hain, lekin koi real phone call, WhatsApp message ya rupee nahi chalta. Real pilot ke liye chahiye: telephony vendor trial + virtual number, WhatsApp BSP account + approved templates, Groq API key, Cashfree app (prod keys) aur Postgres/Redis URLs.</p></details>
+    <details><summary>Pilot clinic kaunsi hogi?</summary><p>Pilot specialty General / GP decide hai. Pilot clinic ka naam aur doctor abhi open hai (Open Decision D1) — demo mein sirf “Care Plus Clinic — DEMO” / “Dr. Sharma (DEMO)” placeholder hai, wo asli clinic nahi hai.</p></details>
+    <details><summary>Ek clinic ka data doosri clinic dekh sakti hai?</summary><p>Nahi. Har table mein tenant_id mandatory hai, har query tenant-scoped hai, aur cross-tenant access 404 deta hai — iske liye dedicated tests hain.</p></details>
+    <details><summary>Clinic apna data export kar sakti hai?</summary><p>Haan — dashboard / API se appointments ka CSV export milta hai, sirf apne tenant ka, bina support ko bole.</p></details>
+    <details><summary>Booking amount kaise kaam karta hai?</summary><p>Clinic amount ON/OFF, ₹50 / ₹100 ya custom set karti hai. Slot 15 minute hold hota hai, UPI link WhatsApp par jata hai, payment verify hote hi CONFIRMED + token. Visit par amount fees mein adjust, time par cancel par poora refund, clinic-side cancel par hamesha poora refund, no-show par forfeit.</p></details>
+  </div>
+</section>
+
+<section>
+  <div class="wrap" style="text-align:center">
+    <h2>Pehle ek clinic, ek doctor, ek number — 7 din.</h2>
+    <p class="sub" style="margin-left:auto;margin-right:auto">Pilot pass hua to hi doosri clinic, billing aur doosra vertical. Pehle booking perfect, baaki uske baad.</p>
+    <a class="btn" href="index.html">Start pilot — dashboard kholein</a>
+    <p class="fine">Signup: dashboard par <strong>POST /auth/signup</strong> se workspace banta hai — clinic ka naam, city, specialty chunein, API key ek baar milegi, use safe jagah save karein.</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <p><strong style="color:#fff">Clinic AI Assistant</strong> — Hinglish AI voice assistant for small clinics.</p>
+      <p>Pilot specialty: General / GP. Source PRD: Clinic AI Voice Agent — PRD v1.1 (18 Nov 2026).</p>
+      <p>Prices on this page are PRD Sec 13.2 indicative bands (hypothesis), not final prices.</p>
+    </div>
+    <div>
+      <p><a href="index.html">Dashboard</a></p>
+      <p><a href="https://github.com/Gautam825406/clinic-ai-assistant">GitHub — clinic-ai-assistant</a></p>
+      <p><a href="index.html">Demo call</a></p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

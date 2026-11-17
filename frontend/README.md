@@ -13,6 +13,7 @@ Backend lives in `../backend/` (same repo, `clinic-ai-assistant`).
 | File | What it is |
 |---|---|
 | `index.html` | The whole dashboard (single file, Hinglish UI) |
+| `landing.html` | Public landing page (hero, how-it-works, honest DEMO transcript mock, features, Pricing with hypothesis note, FAQ) — CTAs link to `index.html`; no payment button live |
 | `config.js` | **The one place the backend URL lives** — `window.__CLINIC_API_BASE__` |
 | `vercel.json` | Static-site config for the Vercel deploy |
 | `.env.example` | Documents the backend URL value (no real env vars — static site) |

@@ -85,6 +85,7 @@ def simulate_call(body: SimulateRequest, user: User = Depends(get_current_user),
             appointment = None
     return {"call_id": call_id, "tenant_id": tenant_id,
             "transcript": transcript, "state": last.get("state"),
+            "language": session.get("language") or "hinglish",
             "appointment_id": appointment_id, "appointment": appointment}
 
 

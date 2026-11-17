@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
 from .database import SessionLocal, init_db
-from .routers import admin, auth, booking, clinics, numbers_router, payments_router, voice
+from .routers import admin, auth, booking, clinics, numbers_router, payments_router, voice, webhooks
 
 APP_VERSION = "1.1.0"
 # The dashboard no longer lives here: it is the static site in frontend/
@@ -81,6 +81,7 @@ app.include_router(booking.router)
 app.include_router(voice.router)
 app.include_router(payments_router.router)
 app.include_router(numbers_router.router)
+app.include_router(webhooks.router)
 app.include_router(admin.router)
 
 

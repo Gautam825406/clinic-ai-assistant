@@ -92,6 +92,28 @@ def _extract_mobile(text: str) -> str | None:
     return None
 
 
+def detect_language(text: str) -> str:
+    """FR-02 (lightweight, rule-based): first utterance se language.
+
+    Devanagari script -> "hindi" (pure Devanagari) ya "hinglish" (mix);
+    sirf English words -> "english"; default "hinglish" — Bangalore ki
+    aam boli. Ye sirf greeting / language_pref ke liye hai; koi booking
+    decision is par nahi hoti. Full Kannada support P1 milestone hai.
+    """
+    t = (text or "").strip()
+    if not t:
+        return "hinglish"
+    deva = sum(1 for ch in t if "\u0900" <= ch <= "\u097f")
+    letters = [ch for ch in t if ch.isalpha()]
+    if deva and deva >= max(1, len(letters) // 2):
+        return "hindi"
+    if deva:
+        return "hinglish"
+    if re.search(r"\b(mujhe|mera|meri|kya|hai|hain|kal|aaj|parso|shaam|subah|baje|dikhana|chahiye|karna|kitne)\b", t.lower()):
+        return "hinglish"
+    return "english"
+
+
 def _extract_date_hint(low: str) -> str | None:
     m = re.search(r"\d{1,2}\s+(?:" + "|".join(_MONTHS) + r")\b", low)
     if m:
@@ -407,6 +429,10 @@ class DialogueEngine:
         text = (text or "").strip()
         low = text.lower()
         state = session.get("state") or STATE_GREET
+        # FR-02: pehle utterance se language detect karo, beech call mein
+        # switch ho to follow karo (session par store; booking par asar nahi).
+        if text and not session.get("language_locked"):
+            session["language"] = detect_language(text)
 
         # 1) Safety FIRST — before any intent or booking step (PRD Sec 7).
         if detect_emergency(text):
@@ -604,6 +630,20 @@ class DialogueEngine:
 
     def _collect_next(self, session: dict) -> dict:
         """One question at a time (PRD Sec 7); slots only when all fields exist."""
+        # FR-16 returning patient: mobile pata hai aur naam abhi nahi
+        # poochha gaya — purana patient ho to naam auto-fill, dobara mat
+        # poochho; greeting personalised ho jati hai (session flag).
+        if not session.get("patient_name") and session.get("mobile"):
+            try:
+                known = (self.db.query(Patient)
+                         .filter(Patient.tenant_id == self.tenant_id,
+                                 Patient.mobile == session["mobile"]).first())
+            except Exception:
+                known = None
+            if known and known.name and known.name != "Patient":
+                session["patient_name"] = known.name
+                session["returning_patient"] = True
+                session["language"] = known.language_pref or session.get("language") or "hinglish"
         if not session.get("patient_name"):
             session["state"] = STATE_COLLECT
             return {"reply": "Aapka naam kya hai?",

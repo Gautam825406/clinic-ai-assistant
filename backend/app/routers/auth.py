@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Clinic, Tenant, User
+from ..models import Clinic, Subscription, Tenant, User
 from ..schemas import LoginRequest, SignupRequest
 from ..security import get_current_user, hash_password, new_api_token, verify_password
 from ..specialty_templates import TEMPLATES, apply_template_to_tenant
@@ -24,6 +24,11 @@ def signup(body: SignupRequest, db: Session = Depends(get_db)):
     db.add(tenant)
     db.commit()
     db.refresh(tenant)
+    # FR-23 hook (config-only): har workspace ko ek Subscription row
+    # milti hai — plan 'pilot', status 'trial'. Koi payment / autopay /
+    # invoice yahan create nahi hota; billing future step hai (PRD Sec 13).
+    db.add(Subscription(tenant_id=tenant.id, plan="pilot", status="trial", amount=0))
+    db.commit()
     clinic = Clinic(
         tenant_id=tenant.id, display_name=body.clinic_name,
         specialty_template_id=specialty,
