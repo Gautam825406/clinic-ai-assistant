@@ -1,0 +1,107 @@
+[
+  {
+    "id": "slotfull-01",
+    "input": "Mera naam Rahul Sharma hai, kal subah 10 baje appointment chahiye, mobile 9876543210.",
+    "expected_intent": "book",
+    "expected_outcome": "offer_2_alternatives",
+    "notes": "Requested slot (kal subah 10 baje) is already taken in the fixture; engine must offer exactly 2 alternatives, never book the taken slot."
+  },
+  {
+    "id": "slotfull-02",
+    "input": "Mera naam Priya Verma hai, kal shaam 5 baje appointment chahiye, mobile 9812345678.",
+    "expected_intent": "book",
+    "expected_outcome": "offer_2_alternatives",
+    "notes": "Requested slot (kal shaam 5 baje) is already taken in the fixture; engine must offer exactly 2 alternatives, never book the taken slot."
+  },
+  {
+    "id": "slotfull-03",
+    "input": "Mera naam Amit Kumar hai, parso subah 11 baje appointment chahiye, mobile 9934567890.",
+    "expected_intent": "book",
+    "expected_outcome": "offer_2_alternatives",
+    "notes": "Requested slot (parso subah 11 baje) is already taken in the fixture; engine must offer exactly 2 alternatives, never book the taken slot."
+  },
+  {
+    "id": "slotfull-04",
+    "input": "Mera naam Sneha Gupta hai, parso shaam 4 baje appointment chahiye, mobile 9654321870.",
+    "expected_intent": "book",
+    "expected_outcome": "offer_2_alternatives",
+    "notes": "Requested slot (parso shaam 4 baje) is already taken in the fixture; engine must offer exactly 2 alternatives, never book the taken slot."
+  },
+  {
+    "id": "slotfull-05",
+    "input": "Mera naam Vikram Singh hai, Monday ko subah 10 baje appointment chahiye, mobile 9123456789.",
+    "expected_intent": "book",
+    "expected_outcome": "offer_2_alternatives",
+    "notes": "Requested slot (Monday ko subah 10 baje) is already taken in the fixture; engine must offer exactly 2 alternatives, never book the taken slot."
+  },
+  {
+    "id": "slotfull-06",
+    "input": "Mera naam Anita Yadav hai, 19 November subah 10 baje appointment chahiye, mobile 9876543210.",
+    "expected_intent": "book",
+    "expected_outcome": "offer_2_alternatives",
+    "notes": "Requested slot (19 November subah 10 baje) is already taken in the fixture; engine must offer exactly 2 alternatives, never book the taken slot."
+  },
+  {
+    "id": "slotfull-07",
+    "input": "Mera naam Rohan Mehta hai, aaj shaam 6 baje appointment chahiye, mobile 9812345678.",
+    "expected_intent": "book",
+    "expected_outcome": "offer_2_alternatives",
+    "notes": "Requested slot (aaj shaam 6 baje) is already taken in the fixture; engine must offer exactly 2 alternatives, never book the taken slot."
+  },
+  {
+    "id": "slotfull-08",
+    "input": "Mera naam Kavita Joshi hai, agle Monday 10 baje appointment chahiye, mobile 9934567890.",
+    "expected_intent": "book",
+    "expected_outcome": "offer_2_alternatives",
+    "notes": "Requested slot (agle Monday 10 baje) is already taken in the fixture; engine must offer exactly 2 alternatives, never book the taken slot."
+  },
+  {
+    "id": "slotfull-09",
+    "input": "Mera naam Arjun Patel hai, kal dopahar 12 baje appointment chahiye, mobile 9654321870.",
+    "expected_intent": "book",
+    "expected_outcome": "offer_2_alternatives",
+    "notes": "Requested slot (kal dopahar 12 baje) is already taken in the fixture; engine must offer exactly 2 alternatives, never book the taken slot."
+  },
+  {
+    "id": "slotfull-10",
+    "input": "Mera naam Neha Agarwal hai, parso 10:30 baje appointment chahiye, mobile 9123456789.",
+    "expected_intent": "book",
+    "expected_outcome": "offer_2_alternatives",
+    "notes": "Requested slot (parso 10:30 baje) is already taken in the fixture; engine must offer exactly 2 alternatives, never book the taken slot."
+  },
+  {
+    "id": "slotfull-11",
+    "input": "Mera naam Suresh Chandra hai, kal subah 10 baje appointment chahiye, mobile 9876543210.",
+    "expected_intent": "book",
+    "expected_outcome": "offer_2_alternatives",
+    "notes": "Requested slot (kal subah 10 baje) is already taken in the fixture; engine must offer exactly 2 alternatives, never book the taken slot."
+  },
+  {
+    "id": "slotfull-12",
+    "input": "Mera naam Pooja Mishra hai, kal shaam 5 baje appointment chahiye, mobile 9812345678.",
+    "expected_intent": "book",
+    "expected_outcome": "offer_2_alternatives",
+    "notes": "Requested slot (kal shaam 5 baje) is already taken in the fixture; engine must offer exactly 2 alternatives, never book the taken slot."
+  },
+  {
+    "id": "slotfull-13",
+    "input": "Mera naam Karan Malhotra hai, parso subah 11 baje appointment chahiye, mobile 9934567890.",
+    "expected_intent": "book",
+    "expected_outcome": "offer_2_alternatives",
+    "notes": "Requested slot (parso subah 11 baje) is already taken in the fixture; engine must offer exactly 2 alternatives, never book the taken slot."
+  },
+  {
+    "id": "slotfull-14",
+    "input": "Mera naam Divya Nair hai, parso shaam 4 baje appointment chahiye, mobile 9654321870.",
+    "expected_intent": "book",
+    "expected_outcome": "offer_2_alternatives",
+    "notes": "Requested slot (parso shaam 4 baje) is already taken in the fixture; engine must offer exactly 2 alternatives, never book the taken slot."
+  },
+  {
+    "id": "slotfull-15",
+    "input": "Mera naam Manish Tiwari hai, Monday ko subah 10 baje appointment chahiye, mobile 9123456789.",
+    "expected_intent": "book",
+    "expected_outcome": "offer_2_alternatives",
+    "notes": "Requested slot (Monday ko subah 10 baje) is already taken in the fixture; engine must offer exactly 2 alternatives, never book the taken slot."
+  }
+]

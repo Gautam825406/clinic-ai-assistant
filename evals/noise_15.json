@@ -1,0 +1,107 @@
+[
+  {
+    "id": "noise-01",
+    "input": "Hmm... kya bol rahe ho?",
+    "expected_intent": "unknown",
+    "expected_outcome": "graceful_human_callback",
+    "notes": "Noisy/unclear input: clarify once, then graceful human handoff / callback ticket — never a dead-end or crash."
+  },
+  {
+    "id": "noise-02",
+    "input": "Awaz nahi aa rahi hai.",
+    "expected_intent": "unknown",
+    "expected_outcome": "graceful_human_callback",
+    "notes": "Noisy/unclear input: clarify once, then graceful human handoff / callback ticket — never a dead-end or crash."
+  },
+  {
+    "id": "noise-03",
+    "input": "Hello hello, koi hai?",
+    "expected_intent": "unknown",
+    "expected_outcome": "graceful_human_callback",
+    "notes": "Noisy/unclear input: clarify once, then graceful human handoff / callback ticket — never a dead-end or crash."
+  },
+  {
+    "id": "noise-04",
+    "input": "....",
+    "expected_intent": "unknown",
+    "expected_outcome": "graceful_human_callback",
+    "notes": "Noisy/unclear input: clarify once, then graceful human handoff / callback ticket — never a dead-end or crash."
+  },
+  {
+    "id": "noise-05",
+    "input": "Uhh, hmm.",
+    "expected_intent": "unknown",
+    "expected_outcome": "graceful_human_callback",
+    "notes": "Noisy/unclear input: clarify once, then graceful human handoff / callback ticket — never a dead-end or crash."
+  },
+  {
+    "id": "noise-06",
+    "input": "Kuch samajh nahi aa raha.",
+    "expected_intent": "unknown",
+    "expected_outcome": "graceful_human_callback",
+    "notes": "Noisy/unclear input: clarify once, then graceful human handoff / callback ticket — never a dead-end or crash."
+  },
+  {
+    "id": "noise-07",
+    "input": "Aap kaun bol rahe ho?",
+    "expected_intent": "unknown",
+    "expected_outcome": "graceful_human_callback",
+    "notes": "Noisy/unclear input: clarify once, then graceful human handoff / callback ticket — never a dead-end or crash."
+  },
+  {
+    "id": "noise-08",
+    "input": "Galat number lag gaya shayad.",
+    "expected_intent": "unknown",
+    "expected_outcome": "graceful_human_callback",
+    "notes": "Noisy/unclear input: clarify once, then graceful human handoff / callback ticket — never a dead-end or crash."
+  },
+  {
+    "id": "noise-09",
+    "input": "Network kharab hai, awaz kat rahi hai.",
+    "expected_intent": "unknown",
+    "expected_outcome": "graceful_human_callback",
+    "notes": "Noisy/unclear input: clarify once, then graceful human handoff / callback ticket — never a dead-end or crash."
+  },
+  {
+    "id": "noise-10",
+    "input": "Bhaiya ek minute ruko.",
+    "expected_intent": "unknown",
+    "expected_outcome": "graceful_human_callback",
+    "notes": "Noisy/unclear input: clarify once, then graceful human handoff / callback ticket — never a dead-end or crash."
+  },
+  {
+    "id": "noise-11",
+    "input": "Kya?",
+    "expected_intent": "unknown",
+    "expected_outcome": "graceful_human_callback",
+    "notes": "Noisy/unclear input: clarify once, then graceful human handoff / callback ticket — never a dead-end or crash."
+  },
+  {
+    "id": "noise-12",
+    "input": "Bolo bolo, sun raha hoon.",
+    "expected_intent": "unknown",
+    "expected_outcome": "graceful_human_callback",
+    "notes": "Noisy/unclear input: clarify once, then graceful human handoff / callback ticket — never a dead-end or crash."
+  },
+  {
+    "id": "noise-13",
+    "input": "Arey... kuch nahi.",
+    "expected_intent": "unknown",
+    "expected_outcome": "graceful_human_callback",
+    "notes": "Noisy/unclear input: clarify once, then graceful human handoff / callback ticket — never a dead-end or crash."
+  },
+  {
+    "id": "noise-14",
+    "input": "Sorry, repeat karo.",
+    "expected_intent": "unknown",
+    "expected_outcome": "graceful_human_callback",
+    "notes": "Noisy/unclear input: clarify once, then graceful human handoff / callback ticket — never a dead-end or crash."
+  },
+  {
+    "id": "noise-15",
+    "input": "Main baad me call karta hoon.",
+    "expected_intent": "unknown",
+    "expected_outcome": "graceful_human_callback",
+    "notes": "Noisy/unclear input: clarify once, then graceful human handoff / callback ticket — never a dead-end or crash."
+  }
+]

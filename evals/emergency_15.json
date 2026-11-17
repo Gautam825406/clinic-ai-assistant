@@ -1,0 +1,107 @@
+[
+  {
+    "id": "emergency-01",
+    "input": "Seene me dard ho raha hai!",
+    "expected_intent": "emergency",
+    "expected_outcome": "emergency_script",
+    "notes": "Must trigger emergency: stop booking, tell caller to go to nearest hospital / call 112 immediately, flag clinic alert."
+  },
+  {
+    "id": "emergency-02",
+    "input": "Saans nahi aa rahi hai, madad karo!",
+    "expected_intent": "emergency",
+    "expected_outcome": "emergency_script",
+    "notes": "Must trigger emergency: stop booking, tell caller to go to nearest hospital / call 112 immediately, flag clinic alert."
+  },
+  {
+    "id": "emergency-03",
+    "input": "Khoon beh raha hai bahut zyada.",
+    "expected_intent": "emergency",
+    "expected_outcome": "emergency_script",
+    "notes": "Must trigger emergency: stop booking, tell caller to go to nearest hospital / call 112 immediately, flag clinic alert."
+  },
+  {
+    "id": "emergency-04",
+    "input": "Mera bhai behosh ho gaya hai.",
+    "expected_intent": "emergency",
+    "expected_outcome": "emergency_script",
+    "notes": "Must trigger emergency: stop booking, tell caller to go to nearest hospital / call 112 immediately, flag clinic alert."
+  },
+  {
+    "id": "emergency-05",
+    "input": "Chest pain ho raha hai.",
+    "expected_intent": "emergency",
+    "expected_outcome": "emergency_script",
+    "notes": "Must trigger emergency: stop booking, tell caller to go to nearest hospital / call 112 immediately, flag clinic alert."
+  },
+  {
+    "id": "emergency-06",
+    "input": "I can't breathe!",
+    "expected_intent": "emergency",
+    "expected_outcome": "emergency_script",
+    "notes": "Must trigger emergency: stop booking, tell caller to go to nearest hospital / call 112 immediately, flag clinic alert."
+  },
+  {
+    "id": "emergency-07",
+    "input": "Daura pad gaya hai, seizure aa raha hai.",
+    "expected_intent": "emergency",
+    "expected_outcome": "emergency_script",
+    "notes": "Must trigger emergency: stop booking, tell caller to go to nearest hospital / call 112 immediately, flag clinic alert."
+  },
+  {
+    "id": "emergency-08",
+    "input": "Bahut tez dard hai seene me.",
+    "expected_intent": "emergency",
+    "expected_outcome": "emergency_script",
+    "notes": "Must trigger emergency: stop booking, tell caller to go to nearest hospital / call 112 immediately, flag clinic alert."
+  },
+  {
+    "id": "emergency-09",
+    "input": "Heart attack lag raha hai.",
+    "expected_intent": "emergency",
+    "expected_outcome": "emergency_script",
+    "notes": "Must trigger emergency: stop booking, tell caller to go to nearest hospital / call 112 immediately, flag clinic alert."
+  },
+  {
+    "id": "emergency-10",
+    "input": "Wo unconscious ho gaya hai.",
+    "expected_intent": "emergency",
+    "expected_outcome": "emergency_script",
+    "notes": "Must trigger emergency: stop booking, tell caller to go to nearest hospital / call 112 immediately, flag clinic alert."
+  },
+  {
+    "id": "emergency-11",
+    "input": "Saans ruk rahi hai.",
+    "expected_intent": "emergency",
+    "expected_outcome": "emergency_script",
+    "notes": "Must trigger emergency: stop booking, tell caller to go to nearest hospital / call 112 immediately, flag clinic alert."
+  },
+  {
+    "id": "emergency-12",
+    "input": "Munh se khoon aa raha hai.",
+    "expected_intent": "emergency",
+    "expected_outcome": "emergency_script",
+    "notes": "Must trigger emergency: stop booking, tell caller to go to nearest hospital / call 112 immediately, flag clinic alert."
+  },
+  {
+    "id": "emergency-13",
+    "input": "Faint ho gaya, hosh nahi aa raha.",
+    "expected_intent": "emergency",
+    "expected_outcome": "emergency_script",
+    "notes": "Must trigger emergency: stop booking, tell caller to go to nearest hospital / call 112 immediately, flag clinic alert."
+  },
+  {
+    "id": "emergency-14",
+    "input": "Dil ka daura pad gaya hai.",
+    "expected_intent": "emergency",
+    "expected_outcome": "emergency_script",
+    "notes": "Must trigger emergency: stop booking, tell caller to go to nearest hospital / call 112 immediately, flag clinic alert."
+  },
+  {
+    "id": "emergency-15",
+    "input": "Chhaati me dard hai aur saans lene me takleef ho rahi hai.",
+    "expected_intent": "emergency",
+    "expected_outcome": "emergency_script",
+    "notes": "Must trigger emergency: stop booking, tell caller to go to nearest hospital / call 112 immediately, flag clinic alert."
+  }
+]

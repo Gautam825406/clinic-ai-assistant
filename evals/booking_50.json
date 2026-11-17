@@ -1,0 +1,352 @@
+[
+  {
+    "id": "booking-01",
+    "input": "Mera naam Rahul Sharma hai, kal subah 10 baje appointment chahiye, mujhe bukhar hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (kal subah 10 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-02",
+    "input": "Priya Verma bol raha hoon, kal shaam 5 baje Dr. Sharma se milna hai, mobile 9812345678.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (kal shaam 5 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-03",
+    "input": "Mujhe parso subah 11 baje appointment book karni hai, mera naam Amit Kumar hai, mobile 9934567890, pet dard hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (parso subah 11 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-04",
+    "input": "parso shaam 4 baje doctor ko dikhana hai, main Sneha Gupta, mobile 9654321870.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (parso shaam 4 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-05",
+    "input": "Mera naam Vikram Singh hai, Monday ko subah 10 baje appointment chahiye, mujhe skin problem hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (Monday ko subah 10 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-06",
+    "input": "Anita Yadav bol raha hoon, 19 November subah 10 baje Dr. Sharma se milna hai, mobile 9876543210.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (19 November subah 10 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-07",
+    "input": "Mujhe aaj shaam 6 baje appointment book karni hai, mera naam Rohan Mehta hai, mobile 9812345678, sardi khansi hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (aaj shaam 6 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-08",
+    "input": "agle Monday 10 baje doctor ko dikhana hai, main Kavita Joshi, mobile 9934567890.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (agle Monday 10 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-09",
+    "input": "Mera naam Arjun Patel hai, kal dopahar 12 baje appointment chahiye, mujhe sir dard hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (kal dopahar 12 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-10",
+    "input": "Neha Agarwal bol raha hoon, parso 10:30 baje Dr. Sharma se milna hai, mobile 9123456789.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (parso 10:30 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-11",
+    "input": "Mujhe kal subah 10 baje appointment book karni hai, mera naam Suresh Chandra hai, mobile 9876543210, bukhar hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (kal subah 10 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-12",
+    "input": "kal shaam 5 baje doctor ko dikhana hai, main Pooja Mishra, mobile 9812345678.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (kal shaam 5 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-13",
+    "input": "Mera naam Karan Malhotra hai, parso subah 11 baje appointment chahiye, mujhe pet dard hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (parso subah 11 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-14",
+    "input": "Divya Nair bol raha hoon, parso shaam 4 baje Dr. Sharma se milna hai, mobile 9654321870.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (parso shaam 4 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-15",
+    "input": "Mujhe Monday ko subah 10 baje appointment book karni hai, mera naam Manish Tiwari hai, mobile 9123456789, skin problem hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (Monday ko subah 10 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-16",
+    "input": "19 November subah 10 baje doctor ko dikhana hai, main Ritu Sharma, mobile 9876543210.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (19 November subah 10 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-17",
+    "input": "Mera naam Sanjay Gupta hai, aaj shaam 6 baje appointment chahiye, mujhe sardi khansi hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (aaj shaam 6 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-18",
+    "input": "Meera Iyer bol raha hoon, agle Monday 10 baje Dr. Sharma se milna hai, mobile 9934567890.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (agle Monday 10 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-19",
+    "input": "Mujhe kal dopahar 12 baje appointment book karni hai, mera naam Nikhil Jain hai, mobile 9654321870, sir dard hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (kal dopahar 12 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-20",
+    "input": "parso 10:30 baje doctor ko dikhana hai, main Asha Devi, mobile 9123456789.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (parso 10:30 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-21",
+    "input": "Mera naam Gaurav Singh hai, kal subah 10 baje appointment chahiye, mujhe bukhar hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (kal subah 10 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-22",
+    "input": "Nisha Kumari bol raha hoon, kal shaam 5 baje Dr. Sharma se milna hai, mobile 9812345678.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (kal shaam 5 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-23",
+    "input": "Mujhe parso subah 11 baje appointment book karni hai, mera naam Ramesh Prasad hai, mobile 9934567890, pet dard hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (parso subah 11 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-24",
+    "input": "parso shaam 4 baje doctor ko dikhana hai, main Sunita Rao, mobile 9654321870.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (parso shaam 4 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-25",
+    "input": "Mera naam Aditya Verma hai, Monday ko subah 10 baje appointment chahiye, mujhe skin problem hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (Monday ko subah 10 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-26",
+    "input": "Rahul Sharma bol raha hoon, 19 November subah 10 baje Dr. Sharma se milna hai, mobile 9876543210.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (19 November subah 10 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-27",
+    "input": "Mujhe aaj shaam 6 baje appointment book karni hai, mera naam Priya Verma hai, mobile 9812345678, sardi khansi hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (aaj shaam 6 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-28",
+    "input": "agle Monday 10 baje doctor ko dikhana hai, main Amit Kumar, mobile 9934567890.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (agle Monday 10 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-29",
+    "input": "Mera naam Sneha Gupta hai, kal dopahar 12 baje appointment chahiye, mujhe sir dard hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (kal dopahar 12 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-30",
+    "input": "Vikram Singh bol raha hoon, parso 10:30 baje Dr. Sharma se milna hai, mobile 9123456789.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (parso 10:30 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-31",
+    "input": "Mujhe kal subah 10 baje appointment book karni hai, mera naam Anita Yadav hai, mobile 9876543210, bukhar hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (kal subah 10 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-32",
+    "input": "kal shaam 5 baje doctor ko dikhana hai, main Rohan Mehta, mobile 9812345678.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (kal shaam 5 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-33",
+    "input": "Mera naam Kavita Joshi hai, parso subah 11 baje appointment chahiye, mujhe pet dard hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (parso subah 11 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-34",
+    "input": "Arjun Patel bol raha hoon, parso shaam 4 baje Dr. Sharma se milna hai, mobile 9654321870.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (parso shaam 4 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-35",
+    "input": "Mujhe Monday ko subah 10 baje appointment book karni hai, mera naam Neha Agarwal hai, mobile 9123456789, skin problem hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (Monday ko subah 10 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-36",
+    "input": "19 November subah 10 baje doctor ko dikhana hai, main Suresh Chandra, mobile 9876543210.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (19 November subah 10 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-37",
+    "input": "Mera naam Pooja Mishra hai, aaj shaam 6 baje appointment chahiye, mujhe sardi khansi hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (aaj shaam 6 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-38",
+    "input": "Karan Malhotra bol raha hoon, agle Monday 10 baje Dr. Sharma se milna hai, mobile 9934567890.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (agle Monday 10 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-39",
+    "input": "Mujhe kal dopahar 12 baje appointment book karni hai, mera naam Divya Nair hai, mobile 9654321870, sir dard hai.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (kal dopahar 12 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-40",
+    "input": "parso 10:30 baje doctor ko dikhana hai, main Manish Tiwari, mobile 9123456789.",
+    "expected_intent": "book",
+    "expected_outcome": "booked",
+    "notes": "Full details: name + mobile + date/time (parso 10:30 baje) + reason; expect confirm-back then BOOK."
+  },
+  {
+    "id": "booking-41",
+    "input": "Mera naam Rahul Sharma hai, kal appointment chahiye.",
+    "expected_intent": "book",
+    "expected_outcome": "collect_missing_time",
+    "notes": "Partial details: engine must ask exactly one missing field at a time, never book without confirm-back."
+  },
+  {
+    "id": "booking-42",
+    "input": "Kal subah 10 baje appointment chahiye.",
+    "expected_intent": "book",
+    "expected_outcome": "collect_missing_name",
+    "notes": "Partial details: engine must ask exactly one missing field at a time, never book without confirm-back."
+  },
+  {
+    "id": "booking-43",
+    "input": "Mera naam Priya Verma hai, kal subah 10 baje milna hai.",
+    "expected_intent": "book",
+    "expected_outcome": "collect_missing_mobile",
+    "notes": "Partial details: engine must ask exactly one missing field at a time, never book without confirm-back."
+  },
+  {
+    "id": "booking-44",
+    "input": "Appointment book karni hai, main Amit Kumar.",
+    "expected_intent": "book",
+    "expected_outcome": "collect_missing_datetime",
+    "notes": "Partial details: engine must ask exactly one missing field at a time, never book without confirm-back."
+  },
+  {
+    "id": "booking-45",
+    "input": "Parso shaam 5 baje doctor ko dikhana hai, mera naam Sneha Gupta hai.",
+    "expected_intent": "book",
+    "expected_outcome": "collect_missing_mobile",
+    "notes": "Partial details: engine must ask exactly one missing field at a time, never book without confirm-back."
+  },
+  {
+    "id": "booking-46",
+    "input": "Mera naam Vikram Singh hai, mobile 9876543210.",
+    "expected_intent": "book",
+    "expected_outcome": "collect_missing_datetime",
+    "notes": "Partial details: engine must ask exactly one missing field at a time, never book without confirm-back."
+  },
+  {
+    "id": "booking-47",
+    "input": "Kal 10 baje milna hai, mera naam Anita Yadav hai.",
+    "expected_intent": "book",
+    "expected_outcome": "collect_missing_mobile",
+    "notes": "Partial details: engine must ask exactly one missing field at a time, never book without confirm-back."
+  },
+  {
+    "id": "booking-48",
+    "input": "Doctor se milna hai, mera naam Rohan Mehta hai.",
+    "expected_intent": "book",
+    "expected_outcome": "collect_missing_datetime",
+    "notes": "Partial details: engine must ask exactly one missing field at a time, never book without confirm-back."
+  },
+  {
+    "id": "booking-49",
+    "input": "Mera naam Kavita Joshi hai, Monday ko subah 10 baje appointment chahiye.",
+    "expected_intent": "book",
+    "expected_outcome": "collect_missing_mobile",
+    "notes": "Partial details: engine must ask exactly one missing field at a time, never book without confirm-back."
+  },
+  {
+    "id": "booking-50",
+    "input": "19 November subah 10 baje appointment chahiye, mera naam Arjun Patel hai.",
+    "expected_intent": "book",
+    "expected_outcome": "collect_missing_mobile",
+    "notes": "Partial details: engine must ask exactly one missing field at a time, never book without confirm-back."
+  }
+]

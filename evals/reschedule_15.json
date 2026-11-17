@@ -1,0 +1,107 @@
+[
+  {
+    "id": "reschedule-01",
+    "input": "Meri appointment reschedule karni hai, mobile 9876543210.",
+    "expected_intent": "reschedule",
+    "expected_outcome": "rescheduled_after_confirm",
+    "notes": "Look up by mobile, confirm old slot, then re-run slot flow; only book the new slot after confirm-back."
+  },
+  {
+    "id": "reschedule-02",
+    "input": "Kal wali appointment dusre din shift karo, mera mobile 9812345678 hai.",
+    "expected_intent": "reschedule",
+    "expected_outcome": "rescheduled_after_confirm",
+    "notes": "Look up by mobile, confirm old slot, then re-run slot flow; only book the new slot after confirm-back."
+  },
+  {
+    "id": "reschedule-03",
+    "input": "Appointment ka time badalna hai, mobile 9934567890.",
+    "expected_intent": "reschedule",
+    "expected_outcome": "rescheduled_after_confirm",
+    "notes": "Look up by mobile, confirm old slot, then re-run slot flow; only book the new slot after confirm-back."
+  },
+  {
+    "id": "reschedule-04",
+    "input": "Meri appointment dobara book karo, parso subah 10 baje, mobile 9876543210.",
+    "expected_intent": "reschedule",
+    "expected_outcome": "rescheduled_after_confirm",
+    "notes": "Look up by mobile, confirm old slot, then re-run slot flow; only book the new slot after confirm-back."
+  },
+  {
+    "id": "reschedule-05",
+    "input": "Din badalna hai, kal ki jagah parso kar do, mobile 9654321870.",
+    "expected_intent": "reschedule",
+    "expected_outcome": "rescheduled_after_confirm",
+    "notes": "Look up by mobile, confirm old slot, then re-run slot flow; only book the new slot after confirm-back."
+  },
+  {
+    "id": "reschedule-06",
+    "input": "Reschedule karna hai, main Rahul Sharma, mobile 9876543210.",
+    "expected_intent": "reschedule",
+    "expected_outcome": "rescheduled_after_confirm",
+    "notes": "Look up by mobile, confirm old slot, then re-run slot flow; only book the new slot after confirm-back."
+  },
+  {
+    "id": "reschedule-07",
+    "input": "Appointment shift karni hai, shaam ki jagah subah kar do.",
+    "expected_intent": "reschedule",
+    "expected_outcome": "ask_mobile",
+    "notes": "Look up by mobile, confirm old slot, then re-run slot flow; only book the new slot after confirm-back."
+  },
+  {
+    "id": "reschedule-08",
+    "input": "Meri booking dusre din kar do.",
+    "expected_intent": "reschedule",
+    "expected_outcome": "ask_mobile",
+    "notes": "Look up by mobile, confirm old slot, then re-run slot flow; only book the new slot after confirm-back."
+  },
+  {
+    "id": "reschedule-09",
+    "input": "Time badal do, 10 baje ki jagah 5 baje kar do, mobile 9123456789.",
+    "expected_intent": "reschedule",
+    "expected_outcome": "rescheduled_after_confirm",
+    "notes": "Look up by mobile, confirm old slot, then re-run slot flow; only book the new slot after confirm-back."
+  },
+  {
+    "id": "reschedule-10",
+    "input": "Kal wali appointment cancel karke parso shift karo, mobile 9876543210.",
+    "expected_intent": "reschedule",
+    "expected_outcome": "rescheduled_after_confirm",
+    "notes": "Look up by mobile, confirm old slot, then re-run slot flow; only book the new slot after confirm-back."
+  },
+  {
+    "id": "reschedule-11",
+    "input": "Doctor ka time change karna hai, mobile 9812345678.",
+    "expected_intent": "reschedule",
+    "expected_outcome": "rescheduled_after_confirm",
+    "notes": "Look up by mobile, confirm old slot, then re-run slot flow; only book the new slot after confirm-back."
+  },
+  {
+    "id": "reschedule-12",
+    "input": "Appointment reschedule, mera naam Priya Verma hai.",
+    "expected_intent": "reschedule",
+    "expected_outcome": "ask_mobile",
+    "notes": "Look up by mobile, confirm old slot, then re-run slot flow; only book the new slot after confirm-back."
+  },
+  {
+    "id": "reschedule-13",
+    "input": "Parso wali appointment kal shift kar do, mobile 9934567890.",
+    "expected_intent": "reschedule",
+    "expected_outcome": "rescheduled_after_confirm",
+    "notes": "Look up by mobile, confirm old slot, then re-run slot flow; only book the new slot after confirm-back."
+  },
+  {
+    "id": "reschedule-14",
+    "input": "Mujhe apni appointment aage badhani hai, mobile 9876543210.",
+    "expected_intent": "reschedule",
+    "expected_outcome": "rescheduled_after_confirm",
+    "notes": "Look up by mobile, confirm old slot, then re-run slot flow; only book the new slot after confirm-back."
+  },
+  {
+    "id": "reschedule-15",
+    "input": "Reschedule please, mobile 9654321870, kal subah 11 baje.",
+    "expected_intent": "reschedule",
+    "expected_outcome": "rescheduled_after_confirm",
+    "notes": "Look up by mobile, confirm old slot, then re-run slot flow; only book the new slot after confirm-back."
+  }
+]

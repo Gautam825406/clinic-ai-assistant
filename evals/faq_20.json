@@ -1,0 +1,142 @@
+[
+  {
+    "id": "faq-01",
+    "input": "Clinic ki fees kitni hai?",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-02",
+    "input": "Fees kya hai checkup ki?",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-03",
+    "input": "Clinic kab khulta hai?",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-04",
+    "input": "Clinic kitne baje band hota hai?",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-05",
+    "input": "Clinic ka address kya hai?",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-06",
+    "input": "Clinic kahan hai?",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-07",
+    "input": "Consultation charges kitne hain?",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-08",
+    "input": "Subah kitne baje khulta hai clinic?",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-09",
+    "input": "Clinic ke timings kya hain?",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-10",
+    "input": "Address batao clinic ka.",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-11",
+    "input": "Fees kitni hai? (clinic ne fees configure nahi ki hai)",
+    "expected_intent": "faq",
+    "expected_outcome": "reception_confirm",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-12",
+    "input": "Doctor kab milenge?",
+    "expected_intent": "faq",
+    "expected_outcome": "reception_confirm",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-13",
+    "input": "Sunday ko clinic khula rehta hai?",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-14",
+    "input": "Location kahan hai clinic ki?",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-15",
+    "input": "Kitna kharcha aayega?",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-16",
+    "input": "Clinic kab tak khula rehta hai?",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-17",
+    "input": "Pata batao.",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-18",
+    "input": "Opening time kya hai?",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-19",
+    "input": "Closing time kya hai?",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  },
+  {
+    "id": "faq-20",
+    "input": "Namaste, ye kaunsa clinic hai?",
+    "expected_intent": "faq",
+    "expected_outcome": "answer_from_config",
+    "notes": "Answer ONLY from clinic config (fees_text, opening/closing, address, greeting); unconfigured info -> 'reception se confirm karke batayenge', never hallucinated."
+  }
+]
