@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://clinic-ai-assistant-mljb.onrender.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://clinic-ai-assistant-mljb.onrender.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <title>Clinic AI Assistant — Dashboard</title>
 <style>
   *{box-sizing:border-box}
@@ -52,6 +53,32 @@
     <p class="muted">API key sirf is browser ki localStorage mein save hoti hai, server par nahi.</p>
     <div id="who" class="muted"></div>
     <div id="health" class="muted"></div>
+  </div>
+
+  <div class="card" id="authCard">
+    <h2 style="margin:0 0 4px;font-size:17px">Sign up / Login</h2>
+    <p class="muted">Nayi clinic hain to sign up karein — workspace turant ban jayega aur API key ek baar milegi (use safe jagah save karein). Purani clinic hain to login karein.</p>
+    <div class="row">
+      <button id="authTabSignup" class="secondary" onclick="showAuth('signup')">Sign up</button>
+      <button id="authTabLogin" class="secondary" onclick="showAuth('login')">Login</button>
+    </div>
+    <div id="authSignup">
+      <label>Clinic ka naam</label><input id="suClinic" placeholder="Jaise: Care Plus Clinic">
+      <label>Owner ka naam</label><input id="suOwner" placeholder="Jaise: Dr. Sharma">
+      <label>Owner mobile</label><input id="suMobile" placeholder="10 digit mobile">
+      <label>Password</label><input id="suPass" type="password" placeholder="Kam se kam 8 characters">
+      <label>City</label><input id="suCity" placeholder="Bangalore" value="Bangalore">
+      <label>Specialty</label>
+      <select id="suSpec"><option value="general">General / GP</option><option value="dental">Dental</option><option value="dermatology">Dermatology / Skin</option><option value="paediatrics">Paediatrics</option><option value="physiotherapy">Physiotherapy</option><option value="custom">Custom</option></select>
+      <div class="row" style="margin-top:10px"><button onclick="signup()">Sign up karein</button></div>
+    </div>
+    <div id="authLogin" style="display:none">
+      <label>Mobile</label><input id="liMobile" placeholder="10 digit mobile">
+      <label>Password</label><input id="liPass" type="password">
+      <div class="row" style="margin-top:10px"><button onclick="login()">Login karein</button></div>
+    </div>
+    <div id="authMsg" class="msg"></div>
+    <div id="newToken" class="keybox" style="display:none"></div>
   </div>
 
   <div class="tabs" id="tabs">
@@ -130,6 +157,11 @@
       <div class="row" style="margin-top:8px"><button onclick="addDoctor()">Doctor jodein</button></div>
       <div id="docMsg" class="msg"></div>
     </div>
+    <div class="card"><h2 style="margin:0;font-size:17px">Plan &amp; Subscription</h2>
+      <p class="muted">Prices PRD Sec 13.2 ke indicative bands hain (hypothesis) — final price pilot ke pehle 7 din ke asal per-call cost se validate hone ke baad lock hoga. Abhi koi payment collect nahi hota.</p>
+      <div class="row"><button onclick="loadPlan()">Plan dekhein</button></div>
+      <div id="planOut"></div><div id="planMsg" class="msg"></div>
+    </div>
   </section>
 
   <section id="tab-numbers" class="tab">
@@ -165,9 +197,10 @@ Haan, confirm karein</textarea>
 
   <section id="tab-admin" class="tab">
     <div class="card"><h2 style="margin:0;font-size:17px">Platform Admin</h2>
-      <p class="muted">Sirf platform admin ko dikhta hai. Aam clinic user ko 403 milega.</p>
+      <p class="muted">Sirf platform admin ko dikhta hai. Aam clinic user ko 403 milega. Kisi clinic ko Pause / Resume karein ya uska plan badlein — ek click, bina deploy ke. Pause karne se data delete nahi hota.</p>
       <div class="row"><button onclick="loadAdmin()">Admin data dekhein</button></div>
       <div id="adminOut"></div><div id="adminMsg" class="msg"></div>
+      <div id="adminDetail"></div><div id="adminDetailMsg" class="msg"></div>
     </div>
     <div class="card"><h2 style="margin:0;font-size:17px">Open Decisions (PRD Sec 19)</h2>
       <div id="decisions"></div></div>
@@ -177,20 +210,72 @@ Haan, confirm karein</textarea>
 <script>
 const $ = id => document.getElementById(id);
 const API = (window.__CLINIC_API_BASE__ || '').replace(/\/+$/, '');  // set in config.js
+// v1.3.2: FastAPI validation errors return detail as a LIST of objects, not
+// a string — `new Error(data.detail)` used to render as "[object Object]"
+// and hide the real reason. Always extract a readable string.
+function errText(data, res){
+  const d = data && data.detail;
+  if(typeof d === 'string' && d) return d;
+  if(Array.isArray(d)) return d.map(e=>{
+    const loc = Array.isArray(e.loc) ? e.loc.slice(1).join('.') : '';
+    return (loc ? loc + ': ' : '') + (e.msg || JSON.stringify(e));
+  }).join('; ') || ('HTTP ' + (res && res.status));
+  if(d && typeof d === 'object') return JSON.stringify(d);
+  return 'HTTP ' + (res && res.status);
+}
+// v1.3.2: this product never embeds any iframe or third-party ad —
+// nothing on this page needs a frame. The live site showed a spam
+// "Buy this domain" iframe injected below the page (no iframe/ad code
+// exists anywhere in this repo or its git history). Strip any frame the
+// moment it appears, and keep watching for injected ones.
+function stripFrames(){ document.querySelectorAll('iframe').forEach(el=>el.remove()); }
+stripFrames();
+if(document.documentElement) new MutationObserver(stripFrames).observe(document.documentElement, {childList:true, subtree:true});
 function key(){ return localStorage.getItem('cai_api_key') || ''; }
 function saveKey(){ const v = $('apikey').value.trim(); if(!v){ alert('API key paste karein'); return; } localStorage.setItem('cai_api_key', v); $('who').textContent = 'API key save ho gayi (is browser mein).'; loadAll(); }
 function logout(){ localStorage.removeItem('cai_api_key'); $('apikey').value=''; $('who').textContent='Logout ho gaya.'; }
+function showAuth(which){
+  $('authSignup').style.display = which==='signup' ? 'block' : 'none';
+  $('authLogin').style.display = which==='login' ? 'block' : 'none';
+}
+async function signup(){
+  try{
+    const res = await fetch(API + '/auth/signup', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
+      clinic_name: $('suClinic').value, owner_name: $('suOwner').value, owner_mobile: $('suMobile').value,
+      password: $('suPass').value, city: $('suCity').value || 'Bangalore', specialty: $('suSpec').value})});
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(errText(data, res));
+    localStorage.setItem('cai_api_key', data.api_token); $('apikey').value = data.api_token;
+    $('authMsg').textContent = 'Workspace ban gaya: ' + data.clinic_name + ' — API key ek baar dikh rahi hai, use safe jagah save karein.';
+    $('authMsg').className='msg ok';
+    const nt = $('newToken'); nt.style.display='block'; nt.textContent = 'API key: ' + data.api_token;
+    $('who').textContent = 'Login ho gaya: ' + data.clinic_name;
+    loadAll();
+  }catch(e){ $('authMsg').textContent='Error: '+e.message; $('authMsg').className='msg err'; }
+}
+async function login(){
+  try{
+    const res = await fetch(API + '/auth/login', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({
+      mobile: $('liMobile').value, password: $('liPass').value})});
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(errText(data, res));
+    localStorage.setItem('cai_api_key', data.api_token); $('apikey').value = data.api_token;
+    $('authMsg').textContent = 'Login ho gaya' + (data.is_platform_admin ? ' (platform admin)' : '') + '.';
+    $('authMsg').className='msg ok'; $('who').textContent = 'Login ho gaya: ' + (data.name||'');
+    loadAll();
+  }catch(e){ $('authMsg').textContent='Error: '+e.message; $('authMsg').className='msg err'; }
+}
 async function api(path, opts={}){
   const res = await fetch(API + path, { ...opts, headers: { 'Content-Type':'application/json', 'X-API-Key': key(), ...(opts.headers||{}) } });
   const data = await res.json().catch(()=>({}));
-  if(!res.ok) throw new Error(data.detail || ('HTTP ' + res.status));
+  if(!res.ok) throw new Error(errText(data, res));
   return data;
 }
 function showTab(name){
   document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
   document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('active', s.id==='tab-'+name));
   if(name==='today') loadToday(); if(name==='calls') loadCalls(); if(name==='callbacks') loadCallbacks();
-  if(name==='config') loadConfig(); if(name==='numbers') loadNumbers(); if(name==='admin') loadDecisions();
+  if(name==='config'){ loadConfig(); loadPlan(); } if(name==='numbers') loadNumbers(); if(name==='admin') loadDecisions();
 }
 function esc(s){ return String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 function todayISO(){ return new Date().toISOString().slice(0,10); }
@@ -234,6 +319,7 @@ async function loadSlots(){
   }catch(e){ $('bookMsg').textContent='Error: '+e.message; $('bookMsg').className='msg err'; }
 }
 async function bookNow(){
+  if(!$('bookSlot').value){ $('bookMsg').textContent='Pehle Slots dekhein se ek khaali slot chunein — bina slot ke booking nahi ho sakti.'; $('bookMsg').className='msg err'; return; }
   try{ const r = await api('/appointments', {method:'POST', body: JSON.stringify({
       doctor_id: $('bookDoctor').value, patient_name: $('bookName').value, patient_mobile: $('bookMobile').value,
       date: $('bookDate').value, slot_start: $('bookSlot').value, reason_line: $('bookReason').value,
@@ -311,13 +397,47 @@ async function runDemoCall(){
     $('demoResult').className='msg ok';
   }catch(e){ $('demoTranscript').textContent='Demo call nahi chali: '+e.message+'\n(Dialogue module abhi build ho raha hai to 503 aayega — tab scripts/demo_call.py se end-to-end demo dekhein.)'; $('demoResult').textContent=''; }
 }
+async function loadPlan(){
+  try{ const s = await api('/clinics/me/subscription');
+    $('planOut').innerHTML = `<p><b>${esc(s.plan.name)}</b> — <span class="badge">${esc(s.status)}</span> • Rs. ${s.plan.price_rs_per_month}/month <span class="muted">(${esc(s.plan.price_status)} — ${esc(s.plan.price_note)})</span></p>` +
+      `<p class="muted">Usage: calls ${s.usage.calls_total} • appointments ${s.usage.appointments_total} • doctors ${s.usage.doctors}</p>` +
+      '<table><tr><th>Plan</th><th>Price</th><th>Doctors</th><th>Calls/mo</th></tr>' +
+      s.all_plans.map(p=>`<tr><td>${esc(p.name)}</td><td>Rs. ${p.price_rs_per_month} <span class="muted">(${esc(p.price_status)})</span></td><td>${esc(p.doctors)}</td><td>${esc(p.calls_per_month)}</td></tr>`).join('') + '</table>' +
+      `<p class="muted">${esc(s.billing_note)}</p>`;
+    $('planMsg').textContent='';
+  }catch(e){ $('planMsg').textContent='Error: '+e.message; $('planMsg').className='msg err'; }
+}
 async function loadAdmin(){
   try{ const t = await api('/admin/tenants'); const s = await api('/admin/stats');
     $('adminOut').innerHTML = `<p>Tenants: ${s.tenants} • Appointments: ${s.appointments} • Calls: ${s.calls} • Paid booking amount: Rs. ${s.booking_payments_paid_rs}</p>` +
-      '<table><tr><th>Clinic</th><th>Plan</th><th>Status</th><th>Appointments</th></tr>' +
-      t.tenants.map(x=>`<tr><td>${esc(x.clinic_name||x.name)}</td><td>${esc(x.plan)}</td><td>${esc(x.status)}</td><td>${x.appointments}</td></tr>`).join('')+'</table>';
+      '<table><tr><th>Clinic</th><th>Plan</th><th>Status</th><th>Appointments</th><th></th></tr>' +
+      t.tenants.map(x=>`<tr><td>${esc(x.clinic_name||x.name)}</td><td>${esc(x.plan)}</td><td>${esc(x.status)}</td><td>${x.appointments}</td><td><button onclick="viewTenant('${x.id}')">Manage karein</button></td></tr>`).join('')+'</table>';
     $('adminMsg').textContent='';
   }catch(e){ $('adminMsg').textContent='Error: '+e.message+' (sirf platform admin)'; $('adminMsg').className='msg err'; }
+}
+async function viewTenant(id){
+  try{ const d = await api('/admin/tenants/' + id);
+    $('adminDetail').innerHTML = `<div class="card"><h3 style="margin:0 0 6px;font-size:16px">${esc(d.clinic.display_name||d.name)}</h3>` +
+      `<p class="muted">${esc(d.city||'')} • ${esc(d.clinic.specialty_template_id||'')} • Plan: ${esc(d.plan)} • Status: ${esc(d.status)}<br>` +
+      `Appointments: ${d.counts.appointments} • Calls: ${d.counts.calls} • Patients: ${d.counts.patients} • Open callbacks: ${d.counts.open_callbacks}<br>` +
+      `Doctors: ${d.doctors.map(x=>esc(x.name)).join(', ')||'—'}</p>` +
+      `<div class="row"><button onclick="manageTenant('${id}','paused')">Pause karein</button>` +
+      `<button class="secondary" onclick="manageTenant('${id}','active')">Resume / Active karein</button>` +
+      `<select id="planSel-${id}"><option value="pilot">Pilot</option><option value="starter">Starter</option><option value="growth">Growth</option><option value="clinic_plus">Clinic+</option></select>` +
+      `<button onclick="changePlan('${id}')">Plan badlein</button></div></div>`;
+    $('adminDetailMsg').textContent='';
+  }catch(e){ $('adminDetailMsg').textContent='Error: '+e.message; $('adminDetailMsg').className='msg err'; }
+}
+async function manageTenant(id, status){
+  try{ const r = await api('/admin/tenants/' + id, {method:'PATCH', body: JSON.stringify({status})});
+    $('adminDetailMsg').textContent = 'Update ho gaya: status = ' + r.status; $('adminDetailMsg').className='msg ok'; loadAdmin(); viewTenant(id);
+  }catch(e){ $('adminDetailMsg').textContent='Error: '+e.message; $('adminDetailMsg').className='msg err'; }
+}
+async function changePlan(id){
+  try{ const plan = $('planSel-'+id).value;
+    const r = await api('/admin/tenants/' + id, {method:'PATCH', body: JSON.stringify({plan})});
+    $('adminDetailMsg').textContent = 'Update ho gaya: plan = ' + r.plan; $('adminDetailMsg').className='msg ok'; loadAdmin(); viewTenant(id);
+  }catch(e){ $('adminDetailMsg').textContent='Error: '+e.message; $('adminDetailMsg').className='msg err'; }
 }
 function loadAll(){ loadHealth(); loadDecisions(); loadDoctorsForBook(); loadToday(); }
 $('apikey').value = key();

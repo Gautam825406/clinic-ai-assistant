@@ -54,6 +54,18 @@ async def lifespan(app: FastAPI):
             seed_demo(db)
         finally:
             db.close()
+    # Platform super-admin bootstrap (env PLATFORM_ADMIN_MOBILE +
+    # PLATFORM_ADMIN_PASSWORD; no-op when unset — see seed.py).
+    try:
+        from .seed import ensure_platform_admin
+
+        db = SessionLocal()
+        try:
+            ensure_platform_admin(db)
+        finally:
+            db.close()
+    except Exception:
+        pass
     yield
 
 

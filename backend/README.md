@@ -114,7 +114,11 @@ Full reference: [`docs/API.md`](docs/API.md). Highlights:
   `POST /payments/{id}/refund`.
 - Numbers: `POST /numbers/request-otp|verify-otp`, `GET /numbers/me`.
 - Admin (platform admin only): `GET /admin/tenants|stats|failures`,
-  `GET /admin/digest/{tenant_id}`.
+  `GET /admin/digest/{tenant_id}`, `GET /admin/tenants/{tenant_id}`,
+  `PATCH /admin/tenants/{tenant_id}` (pause/resume, plan change).
+  Platform admin is bootstrapped from env only: `PLATFORM_ADMIN_MOBILE`
+  + `PLATFORM_ADMIN_PASSWORD` (host env, never in git) — without them
+  no user is admin and `/admin/*` returns 403 for everyone.
 - Meta: `GET /health`, `GET /api/open-decisions`, `GET /` (API pointer —
   the dashboard is the frontend, not this service).
 

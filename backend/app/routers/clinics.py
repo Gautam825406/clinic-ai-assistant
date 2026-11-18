@@ -84,18 +84,38 @@ def today_list(day: date | None = None, user: User = Depends(get_current_user),
 @router.post("/clinics/me/doctors", status_code=201)
 def create_doctor(body: DoctorCreate, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
+    from ..slot_engine import ensure_default_schedule
+
     doctor = Doctor(tenant_id=user.tenant_id, name=body.name,
                     speciality=body.speciality, slot_minutes=body.slot_minutes)
     db.add(doctor)
     db.commit()
     db.refresh(doctor)
-    return doctor_dict(doctor)
+    # v1.3.2: a doctor without a weekly schedule can never be booked
+    # (live test: 0 slots for 19/20 Nov). Auto-create the General default
+    # hours — Mon–Sat 09:00–13:00 + 16:00–21:00 — so slots exist from day 1.
+    schedules_created = ensure_default_schedule(db, doctor)
+    return {**doctor_dict(doctor), "schedules_created": schedules_created,
+            "default_schedule": "Mon–Sat 09:00–13:00, 16:00–21:00"}
 
 
 @router.post("/clinics/me/schedules", status_code=201)
 def create_schedule(body: ScheduleCreate, user: User = Depends(get_current_user),
                     db: Session = Depends(get_db)):
     doctor_for(db, user.tenant_id, body.doctor_id)
+    # v1.3.2: identical schedule rows are idempotent — adding the same
+    # hours twice used to duplicate every slot in the list.
+    existing = db.query(Schedule).filter(
+        Schedule.tenant_id == user.tenant_id, Schedule.doctor_id == body.doctor_id,
+        Schedule.weekday == body.weekday, Schedule.start_time == body.start_time,
+        Schedule.end_time == body.end_time,
+        Schedule.break_start == body.break_start,
+        Schedule.break_end == body.break_end).first()
+    if existing is not None:
+        return {"id": existing.id, "doctor_id": existing.doctor_id, "weekday": existing.weekday,
+                "start_time": existing.start_time, "end_time": existing.end_time,
+                "break_start": existing.break_start, "break_end": existing.break_end,
+                "duplicate": True}
     sched = Schedule(tenant_id=user.tenant_id, doctor_id=body.doctor_id,
                      weekday=body.weekday, start_time=body.start_time,
                      end_time=body.end_time, break_start=body.break_start,

@@ -92,6 +92,14 @@ def create_appointment(body: AppointmentCreate, user: User = Depends(get_current
         duration = atype.duration_minutes
     if body.slot_start.date() != body.date:
         raise HTTPException(status_code=400, detail="slot_start date must match date")
+    # v1.3.2: only a slot the slot engine actually offers can be booked.
+    # Before this, any datetime (or an empty slot from the UI) reached
+    # book_slot and failed opaquely; the UI then showed "[object Object]".
+    free_slots = generate_slots(db, body.doctor_id, body.date, duration)
+    if body.slot_start not in free_slots:
+        raise HTTPException(
+            status_code=400,
+            detail="Ye time slot khaali nahi hai — Slots dekhein se koi khaali slot chunein")
     patient = _get_or_create_patient(db, user.tenant_id, body.patient_name, body.patient_mobile)
     amount = _booking_amount(db, user.tenant_id, body.appointment_type_id)
     appt = book_slot(

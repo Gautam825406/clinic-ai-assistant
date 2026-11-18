@@ -253,11 +253,19 @@ def extract_fields(text: str, clinic_name: str = "") -> BookingExtraction:
     time_hint = _extract_time_hint(low)
     reason = _extract_reason(low)
 
+    # A name introduction must never drive intent: "Mera naam Cancel
+    # Patient hai" is a name, not a cancel request. Strip the extracted
+    # name from the text before the reschedule/cancel keyword check.
+    low_intent = low
+    if name and re.search(r"mera naam|my name is", low):
+        for word in name.lower().split():
+            low_intent = re.sub(rf"\b{re.escape(word)}\b", " ", low_intent)
+
     if any(w in low for w in _HUMAN_WORDS):
         intent = "human"
-    elif re.search(r"reschedule|dobara|shift|badal|change|dusre din|aage\s+badha", low):
+    elif re.search(r"reschedule|dobara|shift|badal|change|dusre din|aage\s+badha", low_intent):
         intent = "reschedule"
-    elif re.search(r"\bcancel\b|radd|nahi aana|appointment hat", low):
+    elif re.search(r"\bcancel\b|radd|nahi aana|appointment hat", low_intent):
         intent = "cancel"
     elif re.search(r"fees|charges|kitna|kharcha|timing|kab khulta|kab band|band hota|kab tak|"
                    r"khula|address|kahan hai|location|pata|opening|closing|kitne baje khulta|"

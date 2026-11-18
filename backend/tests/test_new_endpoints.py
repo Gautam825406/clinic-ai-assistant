@@ -38,6 +38,17 @@ def _headers(token):
     return {"X-API-Key": token}
 
 
+# --- FR-05 edge: name must never drive intent --------------------------
+def test_name_containing_cancel_is_not_a_cancel_intent():
+    from app.dialogue import extract_fields
+
+    ext = extract_fields("Mera naam Cancel Patient hai, mobile 9000000033")
+    assert ext.intent == "book", ext
+    assert ext.patient_name == "Cancel Patient"
+    ext2 = extract_fields("Mera naam Reschedule Kumar hai")
+    assert ext2.intent in ("book", "unknown"), ext2
+
+
 # --- FR-02 language detection -------------------------------------------
 def test_detect_language_hindi_english_hinglish():
     assert detect_language("मुझे कल डॉक्टर को दिखाना है") == "hindi"

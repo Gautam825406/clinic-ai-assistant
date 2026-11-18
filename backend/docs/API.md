@@ -379,6 +379,19 @@ Auth required. `{ "count": 1, "numbers": [{ "id", "tenant_id",
 `{ "count": 2, "tenants": [{ "id", "name", "type", "city", "plan",
 "status", "clinic_name", "specialty_template_id", "appointments", "calls" }] }`.
 
+### GET /admin/tenants/{tenant_id}
+
+Platform admin only. One clinic in full: tenant + clinic config +
+doctors + subscription + counts (appointments, calls, patients, open
+callbacks).
+
+### PATCH /admin/tenants/{tenant_id}
+
+Platform admin only. Body: `{ "status": "paused"|"active"|...,
+"plan": "starter"|... }`. Activate / pause / resume a clinic and
+change its plan — one click, no deploy; pausing never deletes data.
+Invalid status/plan → `400`. Other tenant → `404`; non-admin → `403`.
+
 ### GET /admin/stats
 
 `{ "tenants": 2, "appointments": 5, "calls": 3, "failed_calls": 0,

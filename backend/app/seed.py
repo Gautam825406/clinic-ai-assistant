@@ -9,6 +9,7 @@ Idempotent: a second seed_demo() returns the existing demo tenant.
 The owner user's demo password is generated randomly, printed once, and
 returned — it is never hardcoded and never stored in plain text.
 """
+import os
 import secrets
 
 from sqlalchemy.orm import Session
@@ -143,6 +144,46 @@ def seed_demo(db: Session) -> dict:
         "api_token": owner.api_token,
         "demo_password": demo_password,
     }
+
+
+def ensure_platform_admin(db: Session) -> dict | None:
+    """Platform super-admin bootstrap (PRD Sec 13.7 / Sec 16.3).
+
+    Before v1.3.1 there was NO way to become a platform admin:
+    ``is_platform_admin`` defaulted False for every user and no code
+    ever set it True, so /admin/* was unreachable in production.
+    This is the one supported path, env-only, never in git/chat:
+    set PLATFORM_ADMIN_MOBILE + PLATFORM_ADMIN_PASSWORD in the host
+    environment (Render > Environment). On boot the user is created
+    (own platform tenant) or upgraded to platform admin, and the
+    password from the env is applied. With the env vars unset this is
+    a no-op and returns None. Returns {user_id, tenant_id, api_token}
+    (api_token only when a new user is created).
+    """
+    mobile = (os.getenv("PLATFORM_ADMIN_MOBILE") or "").strip()
+    password = os.getenv("PLATFORM_ADMIN_PASSWORD") or ""
+    if not mobile or not password:
+        return None
+    user = db.query(User).filter(User.mobile == mobile).first()
+    if user is not None:
+        user.is_platform_admin = True
+        user.password_hash = hash_password(password)
+        db.commit()
+        return {"user_id": user.id, "tenant_id": user.tenant_id, "api_token": None}
+    tenant = Tenant(name="Platform Admin", type="clinic", city="", plan="pilot", status="active")
+    db.add(tenant)
+    db.commit()
+    db.refresh(tenant)
+    db.add(Subscription(tenant_id=tenant.id, plan="pilot", status="active", amount=0))
+    db.add(Clinic(tenant_id=tenant.id, display_name="Platform Admin",
+                  specialty_template_id="general"))
+    user = User(tenant_id=tenant.id, name="Platform Admin", mobile=mobile,
+                role="owner", password_hash=hash_password(password),
+                api_token=new_api_token(), is_platform_admin=True)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return {"user_id": user.id, "tenant_id": tenant.id, "api_token": user.api_token}
 
 
 def delete_demo(db: Session) -> dict:

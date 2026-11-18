@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://clinic-ai-assistant-mljb.onrender.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://clinic-ai-assistant-mljb.onrender.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="description" content="Clinic AI Assistant — Hinglish AI voice assistant jo clinic ke phone par appointment book karta hai, refundable booking amount leta hai aur doctor ko WhatsApp summary bhejta hai. Pilot: General / GP.">
 <title>Clinic AI Assistant — Clinic ki calls, booking aur daily list, bina ek call miss kiye</title>
 <style>
@@ -240,5 +241,13 @@
     </div>
   </div>
 </footer>
+<script>
+// v1.3.2: this product never embeds any iframe or third-party ad.
+// The live site showed a spam "Buy this domain" iframe injected below
+// the page (no iframe/ad code exists anywhere in this repo or its git
+// history). Strip any frame the moment it appears.
+(function(){ function strip(){ document.querySelectorAll('iframe').forEach(function(el){ el.remove(); }); }
+  strip(); new MutationObserver(strip).observe(document.documentElement, {childList:true, subtree:true}); })();
+</script>
 </body>
 </html>

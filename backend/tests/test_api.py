@@ -89,12 +89,18 @@ def test_signup_config_slots_booking_flow():
 
     doctor_id = _setup_doctor(token, day)
 
-    # Slots generation
+    # Slots generation — v1.3.2: the doctor already has the auto-created
+    # default hours (Mon–Sat 09:00–13:00 + 16:00–21:00 = 36 slots at 15
+    # min); on a Sunday only the manual 09:00–13:00 row exists (16 slots).
+    # The manual schedule POST above is now idempotent, so it must not
+    # duplicate any slot.
     r = client.get(f"/slots?doctor_id={doctor_id}&date={day.isoformat()}", headers=_headers(token))
     assert r.status_code == 200, r.text
     slots = r.json()["slots"]
-    assert len(slots) == 16  # 09:00-13:00 at 15 min
+    expected = 36 if day.weekday() < 6 else 16
+    assert len(slots) == expected, slots
     assert slots[0].endswith("T09:00:00")
+    assert len(set(slots)) == len(slots)  # no duplicate slots
 
     # Manual booking
     r = client.post("/appointments", json={
@@ -118,6 +124,60 @@ def test_signup_config_slots_booking_flow():
     # The booked slot is gone from the slot list
     r = client.get(f"/slots?doctor_id={doctor_id}&date={day.isoformat()}", headers=_headers(token))
     assert slots[0] not in r.json()["slots"]
+
+
+def test_fresh_doctor_gets_default_schedule_and_books():
+    """v1.3.2 regression test for the live-test failure (18 Nov 2026):
+    a brand-new clinic adds a doctor and books, WITHOUT anyone manually
+    creating a schedule. Before the fix this gave 0 slots for 19/20 Nov
+    and booking failed with an opaque "[object Object]" error."""
+    signup = _signup("Fresh Clinic")
+    token = signup["api_token"]
+    tomorrow = _tomorrow()
+    day_after = _tomorrow() + timedelta(days=1)
+
+    r = client.post("/clinics/me/doctors",
+                    json={"name": "Dr. Fresh", "speciality": "General / GP",
+                          "slot_minutes": 15}, headers=_headers(token))
+    assert r.status_code == 201, r.text
+    assert r.json()["schedules_created"] == 12  # Mon–Sat x 2 sessions
+    doctor_id = r.json()["id"]
+
+    slots_tomorrow = client.get(
+        f"/slots?doctor_id={doctor_id}&date={tomorrow.isoformat()}",
+        headers=_headers(token)).json()["slots"]
+    slots_day_after = client.get(
+        f"/slots?doctor_id={doctor_id}&date={day_after.isoformat()}",
+        headers=_headers(token)).json()["slots"]
+    # Both days are weekdays in the live-test window (Thu 19 / Fri 20 Nov);
+    # on a Sunday the clinic is closed, so only assert >0 for weekdays.
+    if tomorrow.weekday() < 6:
+        assert len(slots_tomorrow) > 0, slots_tomorrow
+    if day_after.weekday() < 6:
+        assert len(slots_day_after) > 0, slots_day_after
+    day, slots = (tomorrow, slots_tomorrow) if tomorrow.weekday() < 6 else (day_after, slots_day_after)
+    assert len(slots) > 0
+
+    r = client.post("/appointments", json={
+        "doctor_id": doctor_id, "patient_name": "Rahul Verma",
+        "patient_mobile": "9000000001", "date": day.isoformat(),
+        "slot_start": slots[0], "reason_line": "bukhaar, 2 din se",
+        "source": "manual"}, headers=_headers(token))
+    assert r.status_code == 201, r.text
+    appt = r.json()
+    assert appt["status"] == "CONFIRMED"
+    assert appt["token_no"] == 1
+
+    # Booking a slot that is not offered must fail with a readable
+    # STRING message — never a FastAPI validation list ("[object Object]").
+    r = client.post("/appointments", json={
+        "doctor_id": doctor_id, "patient_name": "Rahul Verma",
+        "patient_mobile": "9000000001", "date": day.isoformat(),
+        "slot_start": slots[0].replace("T09:00:00", "T03:00:00"),
+        "reason_line": "bukhaar", "source": "manual"}, headers=_headers(token))
+    assert r.status_code == 400, r.text
+    assert isinstance(r.json()["detail"], str)
+    assert "khaali" in r.json()["detail"]
 
 
 def test_cross_tenant_404():

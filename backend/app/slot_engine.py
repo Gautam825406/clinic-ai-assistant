@@ -15,6 +15,38 @@ from .models import Appointment, Doctor, Holiday, Schedule
 
 HOLD_SECONDS = 120  # PRD Sec 11.3: 120-sec Redis hold during a call
 
+# v1.3.2 fix (live test, 18 Nov 2026): a new doctor used to get NO weekly
+# schedule at all, so generate_slots() returned [] and manual booking +
+# Demo Call could never confirm anything ("no slot free this week").
+# Every doctor now gets the General-template default working hours the
+# moment they are created — Mon–Sat, two sessions a day, same as the
+# demo seed (seed.py). Appointment types come from the clinic's specialty
+# template (New Consult 15 min / Follow-up 10 min / Report 10 min for
+# General); the slot grid itself uses the doctor's slot_minutes.
+DEFAULT_SCHEDULE_SESSIONS = (("09:00", "13:00"), ("16:00", "21:00"))
+DEFAULT_SCHEDULE_WEEKDAYS = range(0, 6)  # Monday–Saturday
+
+
+def ensure_default_schedule(db: Session, doctor: Doctor) -> int:
+    """Create the default weekly schedule for a doctor that has none.
+
+    Idempotent: doctors who already have any Schedule row are untouched
+    (their custom hours are never overwritten). Returns how many Schedule
+    rows were created (0 or 12)."""
+    existing = db.query(Schedule).filter(Schedule.doctor_id == doctor.id).count()
+    if existing:
+        return 0
+    created = 0
+    for weekday in DEFAULT_SCHEDULE_WEEKDAYS:
+        for start, end in DEFAULT_SCHEDULE_SESSIONS:
+            db.add(Schedule(
+                tenant_id=doctor.tenant_id, doctor_id=doctor.id,
+                weekday=weekday, start_time=start, end_time=end,
+            ))
+            created += 1
+    db.commit()
+    return created
+
 
 def _parse_hhmm(value: str) -> time:
     h, m = value.split(":")
@@ -33,6 +65,11 @@ def generate_slots(db: Session, doctor_id: str, day: date, duration_minutes: int
     if not doctor or not doctor.active:
         return []
     duration = duration_minutes or doctor.slot_minutes
+    # Backfill (v1.3.2): doctors created before this fix have no schedule
+    # rows at all — give them the default hours instead of returning [].
+    # This is what makes an already-live clinic bookable again after the
+    # redeploy, without anyone re-creating the doctor.
+    ensure_default_schedule(db, doctor)
     schedules = (
         db.query(Schedule)
         .filter(Schedule.doctor_id == doctor_id, Schedule.weekday == day.weekday())
@@ -64,7 +101,10 @@ def generate_slots(db: Session, doctor_id: str, day: date, duration_minutes: int
         ).all()
         if a.status == "CONFIRMED" or (a.hold_expires_at and a.hold_expires_at > now)
     }
-    return [s for s in slots if s not in taken]
+    # Dedupe (v1.3.2): overlapping schedule rows (e.g. a manual 09:00-13:00
+    # row added on top of the auto-created default) must never list the
+    # same slot twice — one slot, one booking.
+    return sorted({s for s in slots if s not in taken})
 
 
 def is_slot_free(db: Session, doctor_id: str, slot_start: datetime) -> bool:
